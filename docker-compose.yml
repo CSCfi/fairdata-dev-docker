@@ -1,0 +1,126 @@
+version: "3.7"
+volumes:
+  metaxdata:
+  qvaindata:
+  elasticsearchdata:
+
+services:
+  cscdevbase:
+    image: cscdevbase:1
+    build:
+      context: ./cscdevbase
+      args:
+        ssh_key: "${SSH_KEY}"
+        rootpassword: "${ROOT_PASSWORD}"
+    privileged: true
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+    cap_add:
+      - ALL
+
+  metax-postgres.csc.local:
+    image: postgres:9
+    environment:
+      POSTGRES_USER: metax_db_user
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: metax_db
+      PGDATA: /data/pg96/metax
+    ports:
+      - "5432:5432"
+    volumes:
+      - metaxdata:/data/
+
+  qvain-postgres.csc.local:
+    image: postgres:9
+    environment:
+      POSTGRES_USER: qvain
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: qvaindb
+      PGDATA: /data/pg96/QVAIN_prod
+    volumes:
+      - qvaindata:/data/
+
+  rabbitmq.csc.local:
+    image: rabbitmq:3.7
+    environment:
+      RABBITMQ_DEFAULT_USER: metax-user
+      RABBITMQ_DEFAULT_PASS: changeme
+      RABBITMQ_DEFAULT_VHOST: metax
+    ports:
+      - "5672:5672"
+
+  elasticsearch.csc.local:
+    image: elasticsearch:5.6.11
+    ports:
+      - "9200:9200"
+    environment:
+      ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+    volumes:
+      - elasticsearchdata:/usr/share/elasticsearch/data
+
+  download.csc.local:
+    image: fairdownload:1
+    build:
+      context: ./download
+      args:
+        ssh_key: "${SSH_KEY}"
+        rootpassword: "${ROOT_PASSWORD}"
+        metax_secrets: service/metax.properties.template
+    privileged: true
+    ports:
+      - "2224:22"
+      - "8433:8433"
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+    cap_add:
+      - ALL
+
+  metax.csc.local:
+    image: metax:1
+    build:
+      context: ./metax
+    privileged: true
+    ports:
+      - "2223:22"
+      - "${METAX_PORT_HTTPS:-1443}:443"
+      - "${METAX_PORT_HTTP:-180}:80"
+    depends_on:
+      - cscdevbase
+      - rabbitmq.csc.local
+      - metax-postgres.csc.local
+      - elasticsearch.csc.local
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+    cap_add:
+      - ALL
+
+  qvain.csc.local:
+    image: qvain:1
+    build:
+      context: ./qvain
+    privileged: true
+    depends_on:
+      - cscdevbase
+      - qvain-postgres.csc.local
+    ports:
+      - "2222:22"
+      - "${QVAIN_PORT_HTTPS:-443}:443"
+      - "8080:8080"
+      - "8081:8081"
+      - "${QVAIN_PORT_HTTP:-80}:80"
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+    cap_add:
+      - ALL

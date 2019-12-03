@@ -1,0 +1,16 @@
+#!/bin/bash
+echo -n "Waiting until qvain web interface is ready.."
+while true; do
+    nc qvain.csc.local 443 -z -w 59 2> /dev/null
+    if [[ $? == 0 ]]; then
+        curl https://qvain.csc.local/api/ --insecure -f -s > /dev/null
+        if [[ $? == 0 ]]; then
+            break
+        else
+            sleep 1
+            echo -n "."
+        fi
+    fi
+done
+echo "..ok"
+echo

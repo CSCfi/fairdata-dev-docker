@@ -1,0 +1,117 @@
+diff --git a/ansible/roles/redis/tasks/main.yml b/ansible/roles/redis/tasks/main.yml
+index 242cb27..7b2f759 100644
+--- a/ansible/roles/redis/tasks/main.yml
++++ b/ansible/roles/redis/tasks/main.yml
+@@ -8,35 +8,35 @@
+   register: service_status
+ 
+ - block:
+-    - name: Place net.core.somaxconn config to /etc/rc.local
+-      lineinfile:
+-        path: /etc/rc.local
+-        insertbefore: '^exit 0'
+-        line: 'sysctl -w net.core.somaxconn=65535'
+-        state: present
+-
+-    - name: Set net.core.somaxconn config
+-      command: sysctl -w net.core.somaxconn=65535
+-
+-    - name: Place Disable Transparent Huge Pages config to /etc/rc.local
+-      lineinfile:
+-        path: /etc/rc.local
+-        insertbefore: '^exit 0'
+-        line: 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
+-        state: present
+-
+-    - name: Set Disable Transparent Huge Pages
+-      command: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+-      become_user: root
+-
+-    - name: Place vm.overcommit_memory = 1 config to /etc/sysctl.conf
+-      lineinfile:
+-        path: /etc/sysctl.conf
+-        line: 'vm.overcommit_memory = 1'
+-        state: present
+-
+-    - name: Set vm.overcommit_memory = 1
+-      command: sysctl vm.overcommit_memory=1
++#    - name: Place net.core.somaxconn config to /etc/rc.local
++#      lineinfile:
++#        path: /etc/rc.local
++#        insertbefore: '^exit 0'
++#        line: 'sysctl -w net.core.somaxconn=65535'
++#        state: present
++
++#    - name: Set net.core.somaxconn config
++#      command: sysctl -w net.core.somaxconn=65535
++
++#    - name: Place Disable Transparent Huge Pages config to /etc/rc.local
++#      lineinfile:
++#        path: /etc/rc.local
++#        insertbefore: '^exit 0'
++#        line: 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
++#        state: present
++
++#    - name: Set Disable Transparent Huge Pages
++#      command: echo never > /sys/kernel/mm/transparent_hugepage/enabled
++#      become_user: root
++
++#    - name: Place vm.overcommit_memory = 1 config to /etc/sysctl.conf
++#      lineinfile:
++#        path: /etc/sysctl.conf
++#        line: 'vm.overcommit_memory = 1'
++#        state: present
++
++#    - name: Set vm.overcommit_memory = 1
++#      command: sysctl vm.overcommit_memory=1
+ 
+     - name: Install Redis server
+       yum: name=redis state=latest
+@@ -111,14 +111,19 @@
+     line: 'Restart=no'
+   when: redis_default_service.stat.exists == True
+ 
+-- name: Stop and disable default Redis server
+-  service: name=redis state=stopped enabled=no
++#- name: Stop and disable default Redis server
++#  service: name=redis state=stopped enabled=no
+ 
+-- name: Stop and disable default Redis Sentinel service
+-  service: name=redis-sentinel state=stopped enabled=no
++# - name: Stop and disable default Redis Sentinel service
++#  service: name=redis-sentinel state=stopped enabled=no
+ 
+-- name: Start custom Redis server service
+-  service: name=redis-{{ redis_instance.number }} state=restarted enabled=yes
++#- name: Start custom Redis server service
++#  service: name=redis-{{ redis_instance.number }} state=stopped enabled=yes
+ 
+-- name: Start custom Redis sentinel service
+-  service: name=redis-sentinel-{{ redis_sentinel_instance.number }} state=restarted enabled=yes
++#- name: Start custom Redis sentinel service
++#  service: name=redis-sentinel-{{ redis_sentinel_instance.number }} state=restarted enabled=yes
++
++- name: Enable services
++  shell: |
++    systemctl enable redis-sentinel-{{ redis_sentinel_instance.number }}
++    systemctl enable redis-{{ redis_instance.number }}
+diff --git a/ansible/roles/refdata_indexer/tasks/main.yml b/ansible/roles/refdata_indexer/tasks/main.yml
+index 5e8a767..67a07f6 100644
+--- a/ansible/roles/refdata_indexer/tasks/main.yml
++++ b/ansible/roles/refdata_indexer/tasks/main.yml
+@@ -15,7 +15,14 @@
+   copy: content="" dest=/var/log/refdata_indexer/reindex.log force=no owner={{ app_user }} group=metax mode=0755
+ 
+ - name: Index reference and organization data
+-  shell: su - {{ app_user }} -c '{{ metax_base_path }}/refdata_indexer/reindex_all.sh delete_and_reindex'
++  become_user: "{{ app_user }}"
++  shell: |
++    set -a
++    source /etc/environment
++    set +a
++    {{ metax_base_path }}/refdata_indexer/reindex_all.sh delete_and_reindex
++  args:
++    executable: /bin/bash
+ 
+ - name: Create cronjob for running reindexing script
+   cron:

@@ -1,0 +1,36 @@
+diff --git a/src/metax_api/services/rabbitmq_service.py b/src/metax_api/services/rabbitmq_service.py
+index 118e047..ff07bdd 100644
+--- a/src/metax_api/services/rabbitmq_service.py
++++ b/src/metax_api/services/rabbitmq_service.py
+@@ -51,6 +51,14 @@ class _RabbitMQService():
+             else:
+                 self._channel = self._connection.channel()
+                 _logger.debug('RabbitMQ connected to %s' % host)
++
++                # lets ensure that we know that the message was actually
++                # delivered when we send something.
++                self._channel.confirm_delivery()
++
++                # ensure that exchanges are initialized
++                self.ensure_exchanges()
++
+                 break
+         else:
+             raise Exception("Unable to connect to RabbitMQ")
+@@ -93,6 +101,16 @@ class _RabbitMQService():
+         finally:
+             self._connection.close()
+ 
++    def ensure_exchanges(self):
++        try:
++            for exchange in self._settings['EXCHANGES']:
++                self._channel.exchange_declare(
++                    exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
++        except Exception as e:
++            _logger.error(e)
++            _logger.exception('Failed to initialize RabbitMQ exchanges')
++            raise
++
+     def init_exchanges(self):
+         """
+         Declare the exchanges specified in settings. Re-declaring existing exchanges does no harm, but

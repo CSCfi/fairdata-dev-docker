@@ -1,0 +1,12 @@
+[Unit]
+Description = Fairdata Metax API
+
+[Service]
+User = metax-user
+Group = metax
+ExecStartPre = /bin/sleep 10
+ExecStart = /opt/fairdata/metax/fairdata-metax-api.sh
+EnvironmentFile = /etc/environment
+
+[Install]
+WantedBy = multi-user.target
