@@ -43,9 +43,9 @@ endif
 	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub $(VENV) docker-compose up --build -d
 	@echo
 	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
-	@echo "Qvain: ssh root@localhost -p2222"
-	@echo "Metax: ssh root@localhost -p2223"
-	@echo "Download: ssh root@localhost -p2224"
+	@echo "Qvain: ssh root@localhost -p2222 -i fairdata-dev-docker-sshkey"
+	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
+	@echo "Download: ssh root@localhost -p2224 -i fairdata-dev-docker-sshkey"
 	@echo
 	@./.wait-until-up-qvain
 	@echo
@@ -53,7 +53,7 @@ endif
 	@echo " http://127.0.0.1"
 	@echo " https://127.0.0.1"
 	@echo
-	@echo "There should be also public key authentication setup using your public key in ~/.ssh/id_rsa.pub"
+	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
 	@echo
 
 metax-dev: venv
@@ -75,7 +75,7 @@ endif
 	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub METAX_PORT_HTTP=80 METAX_PORT_HTTPS=443 $(VENV) docker-compose up --build -d metax.csc.local
 	@echo
 	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
-	@echo "Metax: ssh root@localhost -p2223"
+	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
 	@echo
 	@./.wait-until-up-metax
 	@echo
@@ -83,7 +83,7 @@ endif
 	@echo " http://127.0.0.1"
 	@echo " https://127.0.0.1"
 	@echo
-	@echo "There should be also public key authentication setup using your public key in ~/.ssh/id_rsa.pub"
+	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub."
 	@echo
 
 down:
