@@ -31,6 +31,7 @@ else
 endif
 
 	@test -f qvain/env || (cp qvain/env.template qvain/env && nano qvain/env)
+
 	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
 	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
 	@test -f .root-password || echo $(NEW_PASSWORD) > .root-password
@@ -40,9 +41,15 @@ endif
 	@test -d download && (cd download && git pull)
 	@cp cscdevbase/id_rsa.pub download/
 	@echo "Starting.."
-	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub $(VENV) docker-compose up --build -d
+	@echo "ROOT_PASSWORD=$(shell cat .root-password)" > .env
+	@echo "SSH_KEY=id_rsa.pub" >> .env
 	@echo
-	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
+	@echo "=== Configuration ==="
+	@$(VENV) docker-compose config
+	@echo "=== end of Configuration ==="
+	@$(VENV) docker-compose up --build -d
+	@echo
+	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
 	@echo "Qvain: ssh root@localhost -p2222 -i fairdata-dev-docker-sshkey"
 	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
 	@echo "Download: ssh root@localhost -p2224 -i fairdata-dev-docker-sshkey"
@@ -75,9 +82,17 @@ endif
 	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
 	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
 	@echo "Starting.."
-	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub METAX_PORT_HTTP=80 METAX_PORT_HTTPS=443 $(VENV) docker-compose up --build -d metax.csc.local
+	@echo "ROOT_PASSWORD=$(shell cat .root-password)" > .env
+	@echo "METAX_PASSWORD=$(shell cat .root-password)" > .env
+	@echo "SSH_KEY=id_rsa.pub" >> .env
+	@echo "METAX_PORT_HTTP=80" >> .env
+	@echo "METAX_PORT_HTTPS=443" >> .env
+	@echo "=== Configuration ==="
+	@$(VENV) docker-compose config
+	@echo "=== end of Configuration ==="
+	@$(VENV) docker-compose up --build -d metax.csc.local
 	@echo
-	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
+	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
 	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
 	@echo
 	@./.wait-until-up-metax

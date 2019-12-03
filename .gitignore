@@ -6,3 +6,4 @@ id_rsa.pub
 venv
 fairdata-dev-docker-sshkey
 fairdata-dev-docker-sshkey.pub
+.env

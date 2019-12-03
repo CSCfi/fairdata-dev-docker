@@ -10,8 +10,8 @@ services:
     build:
       context: ./cscdevbase
       args:
-        ssh_key: "${SSH_KEY}"
-        rootpassword: "${ROOT_PASSWORD}"
+        ssh_key: "${SSH_KEY:-id_rsa.pub}"
+        root_password: "${ROOT_PASSWORD:-changeme}"
     privileged: true
     volumes:
       - type: bind
@@ -66,8 +66,8 @@ services:
     build:
       context: ./download
       args:
-        ssh_key: "${SSH_KEY}"
-        rootpassword: "${ROOT_PASSWORD}"
+        ssh_key: "${SSH_KEY:-id_rsa.pub}"
+        root_password: "${ROOT_PASSWORD:-changeme}"
         metax_secrets: service/metax.properties.template
     privileged: true
     ports:
@@ -85,6 +85,8 @@ services:
     image: metax:1
     build:
       context: ./metax
+      args:
+        metax_password: "${METAX_PASSWORD:-changeme}"
     privileged: true
     ports:
       - "2223:22"
