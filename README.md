@@ -11,8 +11,16 @@ make up
 ```
 make metax-dev
 ```
+If you need to access shell you can use
+```
+make metax-shell
+```
 
 ### Qvain dev
 ```
 make qvain-dev
+```
+If you need to access shell you can use
+```
+make qvain-shell
 ```

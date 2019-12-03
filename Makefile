@@ -56,6 +56,9 @@ endif
 	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
 	@echo
 
+qvain-shell:
+	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
+
 metax-dev: venv
 ifeq ($(METAX_CSC_LOCAL),"(127.0.0.1)")
 	@echo
@@ -85,6 +88,9 @@ endif
 	@echo
 	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub."
 	@echo
+
+metax-shell:
+	@$(VENV) docker-compose exec metax.csc.local /bin/bash
 
 down:
 	$(VENV) docker-compose down
