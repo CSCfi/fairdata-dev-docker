@@ -17,7 +17,7 @@ METAX_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 metax.csc.local | grep -o \(.*\))
 
 up:	qvain-dev
 
-qvain-dev: venv
+qvain-dev: test-docker venv
 ifeq ($(QVAIN_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
@@ -66,7 +66,12 @@ endif
 qvain-shell:
 	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
 
-metax-dev: venv
+test-docker:
+	@echo "Testing connection to Docker.."
+	@docker info > /dev/null
+	@echo "..ok"
+
+metax-dev: test-docker venv
 ifeq ($(METAX_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
