@@ -3,3 +3,6 @@ env
 id_rsa.pub
 .vagrant
 .root-password
+venv
+fairdata-dev-docker-sshkey
+fairdata-dev-docker-sshkey.pub

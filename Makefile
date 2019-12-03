@@ -9,6 +9,7 @@
 # All Rights Reserved.
 #########################################################
 
+VENV:=source venv/bin/activate &&
 SHELL:=/bin/bash
 NEW_PASSWORD:=$(shell cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 QVAIN_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 qvain.csc.local | grep -o \(.*\))
@@ -16,7 +17,7 @@ METAX_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 metax.csc.local | grep -o \(.*\))
 
 up:	qvain-dev
 
-qvain-dev:
+qvain-dev: venv
 ifeq ($(QVAIN_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
@@ -30,7 +31,8 @@ else
 endif
 
 	@test -f qvain/env || (cp qvain/env.template qvain/env && nano qvain/env)
-	@test -f cscdevbase/id_rsa.pub || cp ~/.ssh/id_rsa.pub cscdevbase/
+	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
+	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
 	@test -f .root-password || echo $(NEW_PASSWORD) > .root-password
 	-@ssh-keygen -R [localhost]:2222
 	-@ssh-keygen -R [localhost]:2223
@@ -38,7 +40,7 @@ endif
 	@test -d download && (cd download && git pull)
 	@cp cscdevbase/id_rsa.pub download/
 	@echo "Starting.."
-	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub docker-compose up --build -d
+	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub $(VENV) docker-compose up --build -d
 	@echo
 	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
 	@echo "Qvain: ssh root@localhost -p2222"
@@ -54,7 +56,7 @@ endif
 	@echo "There should be also public key authentication setup using your public key in ~/.ssh/id_rsa.pub"
 	@echo
 
-metax-dev:
+metax-dev: venv
 ifeq ($(METAX_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
@@ -66,10 +68,11 @@ else
 	@echo " metax.csc.local was resolved to 127.0.0.1."
 	@echo
 endif
-
 	@test -f .root-password || echo $(NEW_PASSWORD) > .root-password
+	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
+	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
 	@echo "Starting.."
-	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub METAX_PORT_HTTP=80 METAX_PORT_HTTPS=443 docker-compose up --build -d metax.csc.local
+	@ROOT_PASSWORD=$(NEW_PASSWORD) SSH_KEY=id_rsa.pub METAX_PORT_HTTP=80 METAX_PORT_HTTPS=443 $(VENV) docker-compose up --build -d metax.csc.local
 	@echo
 	@echo "After the containers are built, you can login with root:$(NEW_PASSWORD):"
 	@echo "Metax: ssh root@localhost -p2223"
@@ -84,16 +87,23 @@ endif
 	@echo
 
 down:
-	docker-compose down
+	$(VENV) docker-compose down
 
 logs:
-	docker-compose logs -f
+	$(VENV) docker-compose logs -f
 
 clean:
-	docker-compose stop
-	docker-compose rm -f
+	$(VENV) docker-compose stop
+	$(VENV) docker-compose rm -f
 	rm -f .root-password
-	-docker image rm `docker image ls qvain -q`
 	ssh-keygen -R [localhost]:2222
 	ssh-keygen -R [localhost]:2223
 	ssh-keygen -R [localhost]:2224
+
+prune:
+	docker image prune
+	docker volume prune
+
+venv:
+	@python3 -m venv venv
+	@$(VENV) pip install -r requirements.txt
