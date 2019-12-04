@@ -24,3 +24,15 @@ If you need to access shell you can use
 ```
 make qvain-shell
 ```
+
+
+### Checkout a specific branch
+#### Qvain development
+```
+make METAX_BRANCH="test" QVAIN_JS_BRANCH="master" QVAIN_API_BRANCH="master" qvain-dev
+```
+
+#### Metax development
+```
+make METAX_BRANCH="test" metax-dev
+```

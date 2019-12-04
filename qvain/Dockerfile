@@ -16,6 +16,8 @@ FROM cscdevbase:1
 WORKDIR /code
 
 ARG qvain_password="changeme"
+ARG qvain_js_branch="next"
+ARG qvain_api_branch="next"
 ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
 
 ENV GO111MODULE=on
@@ -44,7 +46,7 @@ RUN chown -R qvain:qvain /code
 ENV GOPATH=/code/go/
 
 USER qvain
-RUN git clone https://github.com/CSCfi/qvain-api.git -b feature/show-go-version-during-build
+RUN git clone https://github.com/CSCfi/qvain-api.git -b ${qvain_api_branch}
 RUN cd qvain-api && make all
 RUN chmod +x /code/qvain-api/bin/*
 
@@ -69,7 +71,7 @@ EXPOSE 8081
 USER qvain
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 RUN source ~/.bashrc && nvm install --lts=dubnium
-RUN git clone https://github.com/CSCfi/qvain-js.git
+RUN git clone https://github.com/CSCfi/qvain-js.git -b ${qvain_js_branch}
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm install
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm run dev-build
 USER root

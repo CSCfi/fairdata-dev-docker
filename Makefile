@@ -14,6 +14,9 @@ SHELL:=/bin/bash
 NEW_PASSWORD:=$(shell cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 QVAIN_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 qvain.csc.local | grep -o \(.*\))
 METAX_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 metax.csc.local | grep -o \(.*\))
+QVAIN_API_BRANCH:=next
+QVAIN_JS_BRANCH:=next
+METAX_BRANCH:=test
 
 up:	qvain-dev
 
@@ -43,6 +46,11 @@ endif
 	@echo "Starting.."
 	@echo "ROOT_PASSWORD=$(shell cat .root-password)" > .env
 	@echo "SSH_KEY=id_rsa.pub" >> .env
+	@echo "QVAIN_API_BRANCH=$(QVAIN_API_BRANCH)" >> .env
+	@echo "QVAIN_JS_BRANCH=$(QVAIN_JS_BRANCH)" >> .env
+	@echo "QVAIN_PASSWORD=$(shell cat .root-password)" >> .env
+	@echo "METAX_PASSWORD=$(shell cat .root-password)" >> .env
+	@echo "METAX_BRANCH=$(METAX_BRANCH)" >> .env
 	@echo
 	@echo "=== Configuration ==="
 	@$(VENV) docker-compose config
@@ -66,6 +74,10 @@ endif
 qvain-shell:
 	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
 
+qvain-tests:
+	@test -d qvain-js || @$(VENV) git clone https://github.com/CSCfi/qvain-js
+	@cd qvain-js && git pull && make check
+
 test-docker:
 	@echo "Testing connection to Docker.."
 	@docker info > /dev/null
@@ -88,7 +100,8 @@ endif
 	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
 	@echo "Starting.."
 	@echo "ROOT_PASSWORD=$(shell cat .root-password)" > .env
-	@echo "METAX_PASSWORD=$(shell cat .root-password)" > .env
+	@echo "METAX_PASSWORD=$(shell cat .root-password)" >> .env
+	@echo "METAX_BRANCH=$(METAX_BRANCH)" >> .env
 	@echo "SSH_KEY=id_rsa.pub" >> .env
 	@echo "METAX_PORT_HTTP=80" >> .env
 	@echo "METAX_PORT_HTTPS=443" >> .env

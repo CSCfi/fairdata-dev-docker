@@ -87,6 +87,7 @@ services:
       context: ./metax
       args:
         metax_password: "${METAX_PASSWORD:-changeme}"
+        metax_branch: "${METAX_BRANCH:-test}"
     privileged: true
     ports:
       - "2223:22"
@@ -109,6 +110,10 @@ services:
     image: qvain:1
     build:
       context: ./qvain
+      args:
+        qvain_password: "${QVAIN_PASSWORD:-changeme}"
+        qvain_js_branch: "${QVAIN_JS_BRANCH:-next}"
+        qvain_api_branch: "${QVAIN_API_BRANCH:-next}"
     privileged: true
     depends_on:
       - cscdevbase

@@ -16,6 +16,7 @@ FROM cscdevbase:1
 WORKDIR /code
 
 ARG metax_password="changeme"
+ARG metax_branch="test"
 ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
 
 # Create user account for metax
@@ -32,7 +33,7 @@ RUN yum install ${YUM_ARGS} python-passlib xqilla xqilla-devel ntp htop tcl tree
 RUN yum install ${YUM_ARGS} python36u python36u-pip python36u-devel
 
 # python modules
-RUN cd /code && git clone https://github.com/CSCfi/metax-api.git
+RUN cd /code && git clone https://github.com/CSCfi/metax-api.git -b ${metax_branch}
 
 ADD metax-api.diff /metax/metax-api.diff
 RUN cd /code/metax-api && patch -p1 < /metax/metax-api.diff
