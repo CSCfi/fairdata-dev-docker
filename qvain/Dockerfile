@@ -20,8 +20,6 @@ ARG qvain_js_branch="next"
 ARG qvain_api_branch="next"
 ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
 
-ENV GO111MODULE=on
-
 # Create user account for qvain
 RUN adduser qvain
 RUN echo qvain:${qvain_password} | chpasswd
@@ -38,16 +36,13 @@ RUN touch /code/do-first-time-init
 EXPOSE 8080
 
 RUN yum install ${YUM_ARGS} golang postgresql gcc gcc-c++ patch
-
-RUN curl -O https://dl.google.com/go/go1.13.4.linux-amd64.tar.gz
-RUN tar xvf go1.13.4.linux-amd64.tar.gz
-RUN chown -R qvain:qvain /code
-
-ENV GOPATH=/code/go/
+RUN yum remove ${YUM_ARGS} git*
+RUN yum install ${YUM_ARGS} https://centos7.iuscommunity.org/ius-release.rpm
+RUN yum install ${YUM_ARGS} git2u-all golang golang-bin
 
 USER qvain
 RUN git clone https://github.com/CSCfi/qvain-api.git -b ${qvain_api_branch}
-RUN cd qvain-api && make all
+RUN cd qvain-api && make
 RUN chmod +x /code/qvain-api/bin/*
 
 USER root
