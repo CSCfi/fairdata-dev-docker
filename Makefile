@@ -14,6 +14,8 @@ SHELL:=/bin/bash
 NEW_PASSWORD:=$(shell cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 QVAIN_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 qvain.csc.local | grep -o \(.*\))
 METAX_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 metax.csc.local | grep -o \(.*\))
+AUTH_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 auth.csc.local | grep -o \(.*\))
+AUTH_CONSENT_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 auth-consent.csc.local | grep -o \(.*\))
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
@@ -21,7 +23,51 @@ HYDRA:=docker-compose exec auth.csc.local hydra
 
 up:	qvain-dev
 
-qvain-dev: test-docker venv
+resolve: resolve-info resolve-metax resolve-qvain resolve-auth resolve-auth-consent
+	@echo
+
+resolve-info:
+	@echo
+	@echo "Testing that following addresses are resolved correctly:"
+	@echo "  127.0.0.1   metax.csc.local"
+	@echo "  127.0.0.1   auth-consent.csc.local"
+	@echo "  127.0.0.1   auth.csc.local"
+	@echo "  127.0.0.1   qvain.csc.local"
+	@echo	
+
+resolve-metax:
+ifeq ($(METAX_CSC_LOCAL),"(127.0.0.1)")
+	@echo
+	@echo "You need to add following line to /etc/hosts on your machine:"
+	@echo "  127.0.0.1   metax.csc.local"
+	@echo
+	@read
+else
+	@echo " metax.csc.local was resolved to 127.0.0.1."
+endif
+
+resolve-auth-consent:
+ifeq ($(AUTH_CONSENT_CSC_LOCAL),"(127.0.0.1)")
+	@echo
+	@echo "You need to add following line to /etc/hosts on your machine:"
+	@echo "  127.0.0.1   auth-consent.csc.local"
+	@read
+else
+	@echo " auth-consent.csc.local was resolved to 127.0.0.1."
+endif
+
+resolve-auth:
+ifeq ($(AUTH_CSC_LOCAL),"(127.0.0.1)")
+	@echo
+	@echo "You need to add following line to /etc/hosts on your machine:"
+	@echo "  127.0.0.1   auth.csc.local"
+	@echo
+	@read
+else
+	@echo " auth.csc.local was resolved to 127.0.0.1."
+endif
+
+resolve-qvain:
 ifeq ($(QVAIN_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
@@ -29,10 +75,10 @@ ifeq ($(QVAIN_CSC_LOCAL),"(127.0.0.1)")
 	@echo
 	@read
 else
-	@echo
 	@echo " qvain.csc.local was resolved to 127.0.0.1."
-	@echo
 endif
+
+qvain-dev: resolve test-docker venv
 	@test -d hydra-login-consent-node || git clone https://github.com/jppiiroinen/hydra-login-consent-node.git
 
 	@test -f qvain/env || (cp qvain/env.template qvain/env)
@@ -98,18 +144,7 @@ test-docker:
 	@docker info > /dev/null
 	@echo "..ok"
 
-metax-dev: test-docker venv
-ifeq ($(METAX_CSC_LOCAL),"(127.0.0.1)")
-	@echo
-	@echo "You need to add following line to /etc/hosts on your machine:"
-	@echo "  127.0.0.1   metax.csc.local"
-	@echo
-	@read
-else
-	@echo
-	@echo " metax.csc.local was resolved to 127.0.0.1."
-	@echo
-endif
+metax-dev: resolve test-docker venv
 	@test -f .root-password || echo $(NEW_PASSWORD) > .root-password
 	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
 	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
