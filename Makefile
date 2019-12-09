@@ -35,7 +35,7 @@ else
 endif
 	@test -d hydra-login-consent-node || git clone https://github.com/jppiiroinen/hydra-login-consent-node.git
 
-	@test -f qvain/env || (cp qvain/env.template qvain/env && nano qvain/env)
+	@test -f qvain/env || (cp qvain/env.template qvain/env)
 
 	@test -f fairdata-dev-docker-sshkey || ssh-keygen -t rsa -N '' -f fairdata-dev-docker-sshkey
 	@test -f cscdevbase/id_rsa.pub || cp fairdata-dev-docker-sshkey.pub cscdevbase/id_rsa.pub
