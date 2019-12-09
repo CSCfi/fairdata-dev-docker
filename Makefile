@@ -17,6 +17,7 @@ METAX_CSC_LOCAL:=$(shell ping -q -c 1 -t 1 metax.csc.local | grep -o \(.*\))
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
+HYDRA:=docker-compose exec auth.csc.local hydra
 
 up:	qvain-dev
 
@@ -32,6 +33,7 @@ else
 	@echo " qvain.csc.local was resolved to 127.0.0.1."
 	@echo
 endif
+	@test -d hydra-login-consent-node || git clone https://github.com/jppiiroinen/hydra-login-consent-node.git
 
 	@test -f qvain/env || (cp qvain/env.template qvain/env && nano qvain/env)
 
@@ -57,10 +59,20 @@ endif
 	@echo "=== end of Configuration ==="
 	@$(VENV) docker-compose up --build -d
 	@echo
+	@echo Setup and test authentication service..
+	@./.wait-until-up-auth
+	-@$(HYDRA) clients create --endpoint http://127.0.0.1:4445 --id fuubarclientid --secret changeme --grant-types authorization_code,refresh_token --response-types code,id_token --scope openid,offline,profile,email --callbacks https://qvain.csc.local/api/auth/cb
+	@echo "..auth is setup!"
+	@echo
 	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
 	@echo "Qvain: ssh root@localhost -p2222 -i fairdata-dev-docker-sshkey"
 	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
 	@echo "Download: ssh root@localhost -p2224 -i fairdata-dev-docker-sshkey"
+	@echo
+	@echo "You can also use make commands to directly get into the shell without ssh."
+	@echo "Qvain: make qvain-shell"
+	@echo "Metax: make metax-shell"
+	@echo "Download: make download-shell"
 	@echo
 	@./.wait-until-up-qvain
 	@echo
@@ -77,6 +89,9 @@ qvain-shell:
 qvain-tests:
 	@test -d qvain-js || @$(VENV) git clone https://github.com/CSCfi/qvain-js
 	@cd qvain-js && git pull && make check
+
+download-shell:
+	@$(VENV) docker-compose exec download.csc.local /bin/bash
 
 test-docker:
 	@echo "Testing connection to Docker.."

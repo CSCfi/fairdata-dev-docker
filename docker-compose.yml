@@ -5,6 +5,34 @@ volumes:
   elasticsearchdata:
 
 services:
+  auth.csc.local:
+    image: oryd/hydra:latest
+    ports:
+      - "4444:4444" # Public port
+      - "4445:4445" # Admin port
+      - "5555:5555" # Port for hydra token user
+    command:
+      serve all --dangerous-force-http
+    environment:
+      - URLS_SELF_ISSUER=http://auth.csc.local:4444
+      - URLS_CONSENT=http://auth-consent.csc.local:3000/consent
+      - URLS_LOGIN=http://auth-consent.csc.local:3000/login
+      - URLS_LOGOUT=http://auth-consent.csc.local:3000/logout
+      - DSN=memory
+      - SECRETS_SYSTEM=youReallyNeedToChangeThis
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=youReallyNeedToChangeThis
+    restart: unless-stopped
+
+  auth-consent.csc.local:
+    environment:
+      - HYDRA_ADMIN_URL=http://auth.csc.local:4445
+    build:
+      context: ./hydra-login-consent-node
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
   cscdevbase:
     image: cscdevbase:1
     build:

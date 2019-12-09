@@ -1,0 +1,10 @@
+#!/bin/bash
+echo -n "Waiting until auth interface is ready.."
+while true; do
+    nc auth.csc.local 4445 -z -w 59 2> /dev/null
+    if [[ $? == 0 ]]; then
+        break
+    fi
+done
+echo "..ok"
+echo

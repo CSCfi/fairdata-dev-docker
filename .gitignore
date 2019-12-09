@@ -7,3 +7,5 @@ venv
 fairdata-dev-docker-sshkey
 fairdata-dev-docker-sshkey.pub
 .env
+.vscode
+hydra-login-consent-node
