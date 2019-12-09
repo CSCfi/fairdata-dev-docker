@@ -7,6 +7,8 @@ Group = qvain
 ExecStartPre = /bin/sleep 10
 ExecStart = /opt/fairdata/qvain/start-fairdata-qvain-api.sh
 EnvironmentFile = /etc/environment
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy = multi-user.target

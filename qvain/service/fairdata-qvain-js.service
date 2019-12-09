@@ -8,6 +8,8 @@ User=qvain
 Group=qvain
 ExecStart = /opt/fairdata/qvain/start-fairdata-qvain-js.sh
 EnvironmentFile = /etc/environment
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy = multi-user.target
