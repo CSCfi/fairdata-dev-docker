@@ -28,7 +28,7 @@ ELASTICSEARCH:
 
 # Variables related to redis
 REDIS:
-  PASSWORD: 'changeme'
+  PASSWORD: 'cain9Bi9Zaim9phuaiV4siebJe1reiy9Zoi5ziga'
 
   TEST_DB: 15
   # when all instances run on localhost, any instance is fine. when
