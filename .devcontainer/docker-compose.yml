@@ -27,6 +27,21 @@ volumes:
   code-download:
     name: fairdata-dev-docker_code-download
     external: true
+  install-qvain:
+    name: fairdata-dev-docker_install-qvain
+    external: true
+  install-metax:
+    name: fairdata-dev-docker_install-metax
+    external: true
+  install-download:
+    name: fairdata-dev-docker_install-download
+    external: true
+  user-qvain:
+    name: fairdata-dev-docker_user-qvain
+    external: true
+  user-metax:
+    name: fairdata-dev-docker_user-metax
+    external: true
 
 services:
   fairdata-dev-container:
@@ -36,6 +51,11 @@ services:
     volumes:
       - ~/.ssh:/root/.ssh-localhost:ro
       - ~/.gitconfig:/root/.gitconfig:ro
+      - install-download:/workspace/install/download
+      - install-qvain:/workspace/install/qvain
+      - install-metax:/workspace/install/metax
+      - user-metax:/workspace/user/metax
+      - user-qvain:/workspace/user/qvain
       - code-download:/workspace/code/download
       - code-qvain:/workspace/code/qvain
       - code-metax:/workspace/code/metax

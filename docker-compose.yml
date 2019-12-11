@@ -6,6 +6,11 @@ volumes:
   code-qvain:
   code-metax:
   code-download:
+  install-download:
+  install-qvain:
+  install-metax:
+  user-metax:
+  user-qvain:
 
 services:
   auth.csc.local:
@@ -109,7 +114,8 @@ services:
         source: /sys/fs/cgroup
         target: /sys/fs/cgroup
         read_only: true
-      - code-download:/code
+      - code-download:/build
+      - install-download:/opt/login-download
     cap_add:
       - ALL
 
@@ -136,6 +142,8 @@ services:
         target: /sys/fs/cgroup
         read_only: true
       - code-metax:/code
+      - install-metax:/opt/fairdata
+      - user-metax:/home/metax-user
     cap_add:
       - ALL
 
@@ -163,5 +171,7 @@ services:
         target: /sys/fs/cgroup
         read_only: true
       - code-qvain:/code
+      - install-qvain:/opt/fairdata
+      - user-qvain:/home/qvain
     cap_add:
       - ALL

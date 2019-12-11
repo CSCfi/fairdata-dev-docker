@@ -116,7 +116,7 @@ RUN systemctl enable fairdata-metax-api-init
 
 
 RUN cd /code && git clone https://github.com/CSCfi/metax-ops.git
-RUN cd /code/metax-ops/ && mv ansible /metax/ansible
+RUN ln -s /code/metax-ops/ansible /metax/ansible
 ADD metax-ops.diff /metax/metax-ops.diff
 RUN cd /metax && patch -p1 < metax-ops.diff
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && pip3 install ansible
