@@ -11,7 +11,7 @@
 */
 {
 	"name": "Fairdata",
-	"workspaceFolder": "/code",
+	"workspaceFolder": "/workspace",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "fairdata-dev-container",
 	"settings": { 

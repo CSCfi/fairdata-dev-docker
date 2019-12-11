@@ -18,5 +18,5 @@ RUN yum install ${YUM_ARGS} git2u-all golang golang-bin
 RUN yum install ${YUM_ARGS} npm
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 RUN source ~/.bashrc && nvm install --lts=dubnium
-RUN rm /root/.gitconfig
+RUN rm -f /root/.gitconfig
 CMD /usr/sbin/init
