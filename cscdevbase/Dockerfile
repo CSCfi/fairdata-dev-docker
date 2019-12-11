@@ -30,8 +30,6 @@ ARG EXTRA_PACKAGES=""
 # These are the default internal variables
 ARG BASE_PACKAGES="nmap-ncat epel-release open-vm-tools openssh-server passwd rsyslog sudo cronie openssl git curl unzip which '@Development tools' htop curl vim tcl tree zile nano screen net-tools"
 ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
-ARG GIT_USER="null-dev"
-ARG GIT_EMAIL="noreply@csc.fi"
 
 ################################################
 # Lets prepare the environment
@@ -65,11 +63,6 @@ RUN systemctl enable crond
 ENV LANG fi_FI.UTF-8
 ENV LC_ALL fi_FI.UTF-8
 RUN localedef -c -f UTF-8 -i fi_FI fi_FI.UTF-8
-
-################################################
-# Configure git client
-RUN git config --global user.name ${GIT_USER}
-RUN git config --global user.email ${GIT_EMAIL}
 
 ################################################
 # Configure SSH server

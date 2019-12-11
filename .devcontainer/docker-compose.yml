@@ -1,0 +1,44 @@
+#########################################################
+# License: MIT
+#
+# Author(s):
+#      Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+#
+# (C) 2019 Copyright CSC - IT Center for Science Ltd.
+# All Rights Reserved.
+#########################################################
+version: "3.7"
+volumes:
+  metaxdata:
+    name: fairdata-dev-docker_metaxdata
+    external: true
+  qvaindata:
+    name: fairdata-dev-docker_qvaindata
+    external: true
+  elasticsearchdata:
+    name: fairdata-dev-docker_elasticsearchdata
+    external: true
+  code-qvain:
+    name: fairdata-dev-docker_code-qvain
+    external: true
+  code-metax:
+    name: fairdata-dev-docker_code-metax
+    external: true
+  code-download:
+    name: fairdata-dev-docker_code-download
+    external: true
+
+services:
+  fairdata-dev-container:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ~/.ssh:/root/.ssh-localhost:ro
+      - ~/.gitconfig:/root/.gitconfig:ro
+      - code-download:/code/download
+      - code-qvain:/code/qvain
+      - code-metax:/code/metax
+      - metaxdata:/data/metax
+      - qvaindata:/data/qvain
+      - elasticsearchdata:/data/elasticsearch

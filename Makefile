@@ -21,7 +21,10 @@ QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
 HYDRA:=docker-compose exec auth.csc.local hydra
 
-up:	qvain-dev
+up:	code qvain-dev
+
+code:
+	mkdir -p code
 
 resolve: resolve-info resolve-metax resolve-qvain resolve-auth resolve-auth-consent
 	@echo
@@ -133,7 +136,7 @@ qvain-shell:
 	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
 
 qvain-tests:
-	@test -d qvain-js || @$(VENV) git clone https://github.com/CSCfi/qvain-js
+	@test -d qvain-js || git clone https://github.com/CSCfi/qvain-js -b next
 	@cd qvain-js && git pull && make check
 
 download-shell:
@@ -184,7 +187,7 @@ logs:
 clean:
 	$(VENV) docker-compose stop
 	$(VENV) docker-compose rm -f
-	rm -f .root-password
+	rm -rf .root-password qvain-js
 	ssh-keygen -R [localhost]:2222
 	ssh-keygen -R [localhost]:2223
 	ssh-keygen -R [localhost]:2224

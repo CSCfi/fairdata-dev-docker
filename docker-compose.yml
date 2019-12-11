@@ -3,6 +3,9 @@ volumes:
   metaxdata:
   qvaindata:
   elasticsearchdata:
+  code-qvain:
+  code-metax:
+  code-download:
 
 services:
   auth.csc.local:
@@ -106,6 +109,7 @@ services:
         source: /sys/fs/cgroup
         target: /sys/fs/cgroup
         read_only: true
+      - code-download:/code
     cap_add:
       - ALL
 
@@ -131,6 +135,7 @@ services:
         source: /sys/fs/cgroup
         target: /sys/fs/cgroup
         read_only: true
+      - code-metax:/code
     cap_add:
       - ALL
 
@@ -157,5 +162,6 @@ services:
         source: /sys/fs/cgroup
         target: /sys/fs/cgroup
         read_only: true
+      - code-qvain:/code
     cap_add:
       - ALL

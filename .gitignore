@@ -1,3 +1,4 @@
+.DS_Store
 download
 env
 id_rsa.pub
@@ -9,3 +10,4 @@ fairdata-dev-docker-sshkey.pub
 .env
 .vscode
 hydra-login-consent-node
+qvain-js
