@@ -18,6 +18,9 @@ volumes:
   elasticsearchdata:
     name: fairdata-dev-docker_elasticsearchdata
     external: true
+  code-etsin:
+    name: fairdata-dev-docker_code-etsin
+    external: true
   code-qvain:
     name: fairdata-dev-docker_code-qvain
     external: true
@@ -26,6 +29,12 @@ volumes:
     external: true
   code-download:
     name: fairdata-dev-docker_code-download
+    external: true
+  code-fairdata:
+    name: fairdata-dev-docker_code-fairdata
+    external: true
+  code-simplesaml:
+    name: fairdata-dev-docker_code-simplesaml
     external: true
   install-qvain:
     name: fairdata-dev-docker_install-qvain
@@ -59,6 +68,9 @@ services:
       - code-download:/workspace/code/download
       - code-qvain:/workspace/code/qvain
       - code-metax:/workspace/code/metax
+      - code-etsin:/workspace/code/etsin
+      - code-fairdata:/workspace/code/fairdata
+      - code-simplesaml:/workspace/code/simplesaml
       - metaxdata:/workspace/data/metax
       - qvaindata:/workspace/data/qvain
       - elasticsearchdata:/workspace/data/elasticsearch

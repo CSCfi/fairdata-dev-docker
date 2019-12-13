@@ -29,7 +29,7 @@ screen -d -m ssh -o 'StrictHostKeyChecking=no' -L9200:elasticsearch.csc.local:92
 echo "..ssh ok."
 echo
 echo "Wait until metax preparations are done.."
-while [ -f /code/do-first-time-init ]; do
+while [ -f /first-time-init ]; do
   sleep 1
 done
 echo "..looks good."

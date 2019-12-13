@@ -31,17 +31,16 @@ RUN chown qvain:qvain /code
 
 # Others
 ADD env /etc/environment
-RUN touch /code/do-first-time-init
+RUN touch /first-time-init
 
 EXPOSE 8080
 
-RUN yum install ${YUM_ARGS} golang postgresql gcc gcc-c++ patch
-RUN yum remove ${YUM_ARGS} git*
-RUN yum install ${YUM_ARGS} https://centos7.iuscommunity.org/ius-release.rpm
-RUN yum install ${YUM_ARGS} git2u-all golang golang-bin
-
 USER qvain
+
 RUN git clone https://github.com/CSCfi/qvain-api.git -b ${qvain_api_branch}
+#ADD 0001-Added-APP_OIDC_LOGOUT_PATH-to-support-custom-path-fo.patch /code/0001-Added-APP_OIDC_LOGOUT_PATH-to-support-custom-path-fo.patch
+RUN cd qvain-api && git pull
+#RUN cd qvain-api && git am /code/0001-Added-APP_OIDC_LOGOUT_PATH-to-support-custom-path-fo.patch
 RUN cd qvain-api && make
 RUN chmod +x /code/qvain-api/bin/*
 
@@ -67,6 +66,7 @@ USER qvain
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 RUN source ~/.bashrc && nvm install --lts=dubnium
 RUN git clone https://github.com/CSCfi/qvain-js.git -b ${qvain_js_branch}
+RUN cd qvain-js && git pull
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm install
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm run dev-build
 USER root
@@ -100,6 +100,8 @@ ADD nginx/nginx.conf /etc/nginx/
 
 # Add service file to start
 RUN systemctl enable nginx
+
+RUN echo "qvain.csc.local" > /etc/hostname
 
 EXPOSE 80
 EXPOSE 443

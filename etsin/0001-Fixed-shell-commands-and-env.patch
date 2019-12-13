@@ -1,0 +1,67 @@
+From 508674b8d60a503975f6fe1f30ce93f3ba42b45a Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Sat, 14 Dec 2019 15:22:40 +0200
+Subject: [PATCH] Fixed shell commands and env.
+
+---
+ ansible/provision_dataservers.yml     | 2 ++
+ ansible/provision_webservers.yml      | 2 ++
+ ansible/roles/frontend/tasks/main.yml | 3 +++
+ 3 files changed, 7 insertions(+)
+
+diff --git a/ansible/provision_dataservers.yml b/ansible/provision_dataservers.yml
+index 59736e5..e0c4351 100644
+--- a/ansible/provision_dataservers.yml
++++ b/ansible/provision_dataservers.yml
+@@ -2,6 +2,8 @@
+ 
+ - hosts: dataservers
+   become: yes
++  environment:
++    PATH: /code/node-v12.13.1-linux-x64/bin:{{ ansible_env.PATH }}
+   roles:
+     - os-base
+     - python
+diff --git a/ansible/provision_webservers.yml b/ansible/provision_webservers.yml
+index 6ec46f8..8e6f68e 100644
+--- a/ansible/provision_webservers.yml
++++ b/ansible/provision_webservers.yml
+@@ -2,6 +2,8 @@
+ 
+ - hosts: webservers
+   become: yes
++  environment:
++    PATH: /code/node-v12.13.1-linux-x64/bin:{{ ansible_env.PATH }}
+   roles:
+     - { role: os-base, when: "deployment_environment_id != 'local_development'" }
+     - { role: python, when: "deployment_environment_id != 'local_development'" }
+diff --git a/ansible/roles/frontend/tasks/main.yml b/ansible/roles/frontend/tasks/main.yml
+index 05a5395..585d36a 100644
+--- a/ansible/roles/frontend/tasks/main.yml
++++ b/ansible/roles/frontend/tasks/main.yml
+@@ -4,6 +4,7 @@
+     shell: npm prune
+     become_user: "{{ app_user }}"
+     args:
++      executable: /bin/bash
+       chdir: "{{ web_app_frontend_path }}"
+ 
+   - block:
+@@ -18,12 +19,14 @@
+         shell: npm install
+         become_user: "{{ app_user }}"
+         args:
++          executable: /bin/bash
+           chdir: "{{ web_app_frontend_path }}"
+ 
+       - name: Run frontend dev build for local development environment
+         shell: npm run dev-build
+         become_user: "{{ app_user }}"
+         args:
++          executable: /bin/bash
+           chdir: "{{ web_app_frontend_path }}"
+ 
+     when: deployment_environment_id == 'local_development'
+-- 
+2.21.0 (Apple Git-122.2)
+

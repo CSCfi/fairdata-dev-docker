@@ -1,0 +1,9 @@
+[Unit]
+Description = Fairdata Etsin - Init
+
+[Service]
+ExecStart = /opt/fairdata/etsin/fairdata-etsin-init.sh
+EnvironmentFile = /etc/environment
+
+[Install]
+WantedBy = multi-user.target
