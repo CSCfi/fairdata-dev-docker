@@ -46,6 +46,14 @@ RUN yum -y -q reinstall glibc-common
 # our software
 RUN yum install ${YUM_ARGS} ${BASE_PACKAGES} ${EXTRA_PACKAGES}
 
+RUN yum install ${YUM_ARGS} golang postgresql gcc gcc-c++ patch
+RUN yum remove ${YUM_ARGS} git*
+RUN yum install ${YUM_ARGS} https://centos7.iuscommunity.org/ius-release.rpm
+RUN yum install ${YUM_ARGS} git2u-all golang golang-bin
+
+RUN git config --global user.email "you@example.com"
+RUN git config --global user.name "Your Name"
+
 ################################################
 # Lets clean up after installing all those files
 RUN yum clean all

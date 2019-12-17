@@ -6,26 +6,50 @@ volumes:
   code-qvain:
   code-metax:
   code-download:
+  code-etsin:
   install-download:
   install-qvain:
   install-metax:
   user-metax:
   user-qvain:
+  user-etsin:
+  code-simplesaml:
+  code-fairdata:
 
 services:
+  simplesaml.csc.local:
+    image: simplesaml:1
+    build:
+      context: ./simplesaml
+    privileged: true
+    ports:
+      - "2230:22"
+      - "${SAML_PORT_HTTPS:-2443}:443"
+      - "${SAML_PORT_HTTP:-2080}:80"
+    depends_on:
+      - cscdevbase
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+      - code-simplesaml:/code
+    cap_add:
+      - ALL
+
   auth.csc.local:
     image: oryd/hydra:latest
     ports:
-      - "4444:4444" # Public port
-      - "4445:4445" # Admin port
-      - "5555:5555" # Port for hydra token user
+      - "${AUTH_PUBLIC_PORT:-4444}:4444" # Public port
+      - "${AUTH_ADMIN_PORT:-4445}:4445" # Admin port
+      - "${AUTH_TOKEN_PORT:-5555}:5555" # Port for hydra token user
     command:
       serve all --dangerous-force-http
     environment:
-      - URLS_SELF_ISSUER=http://auth.csc.local:4444
-      - URLS_CONSENT=http://auth-consent.csc.local:3000/consent
-      - URLS_LOGIN=http://auth-consent.csc.local:3000/login
-      - URLS_LOGOUT=http://auth-consent.csc.local:3000/logout
+      - URLS_SELF_ISSUER=http://auth.csc.local:${AUTH_PUBLIC_PORT:-4444}
+      - URLS_CONSENT=http://auth-consent.csc.local:${AUTH_CONSENT_PORT:-3000}/consent
+      - URLS_LOGIN=http://auth-consent.csc.local:${AUTH_CONSENT_PORT:-3000}/login
+      - URLS_LOGOUT=http://auth-consent.csc.local:${AUTH_CONSENT_PORT:-3000}/logout
       - DSN=memory
       - SECRETS_SYSTEM=youReallyNeedToChangeThis
       - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
@@ -34,11 +58,11 @@ services:
 
   auth-consent.csc.local:
     environment:
-      - HYDRA_ADMIN_URL=http://auth.csc.local:4445
+      - HYDRA_ADMIN_URL=http://auth.csc.local:${AUTH_ADMIN_PORT:-4445}
     build:
       context: ./hydra-login-consent-node
     ports:
-      - "3000:3000"
+      - "${AUTH_CONSENT_PORT:-3000}:3000"
     restart: unless-stopped
 
   cscdevbase:
@@ -108,7 +132,7 @@ services:
     privileged: true
     ports:
       - "2224:22"
-      - "8433:8433"
+      - "${DOWNLOAD_PORT:-8433}:8433"
     volumes:
       - type: bind
         source: /sys/fs/cgroup
@@ -130,7 +154,7 @@ services:
     ports:
       - "2223:22"
       - "${METAX_PORT_HTTPS:-1443}:443"
-      - "${METAX_PORT_HTTP:-180}:80"
+      - "${METAX_PORT_HTTP:-1080}:80"
     depends_on:
       - cscdevbase
       - rabbitmq.csc.local
@@ -159,6 +183,8 @@ services:
     depends_on:
       - cscdevbase
       - qvain-postgres.csc.local
+      - auth.csc.local
+      - auth-consent.csc.local
     ports:
       - "2222:22"
       - "${QVAIN_PORT_HTTPS:-443}:443"
@@ -174,4 +200,53 @@ services:
       - install-qvain:/opt/fairdata
       - user-qvain:/home/qvain
     cap_add:
-      - ALL
+      - ALL 
+
+  etsin.csc.local:
+    image: etsin:1
+    build:
+      context: ./etsin
+      args:
+        etsin_ops_branch: "${ETSIN_OPS_BRANCH:-master}"
+        etsin_finder_branch: "${ETSIN_FINDER_BRANCH:-test}"
+        etsin_finder_search_branch: "${ETSIN_FINDER_SEARCH_BRANCH:-test}"
+    privileged: true
+    depends_on:
+      - cscdevbase
+      - simplesaml.csc.local
+      - metax.csc.local
+      - download.csc.local
+    ports:
+      - "${ETSIN_PORT_HTTPS:-443}:443"
+      - "${ETSIN_PORT_HTTP:-80}:80"
+    cap_add:
+      - ALL 
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+      - code-etsin:/code
+      - user-etsin:/home/etsin-user
+
+  fairdata.csc.local:
+    image: fairdata:1
+    build:
+      context: ./fairdata
+    privileged: true
+    depends_on:
+      - cscdevbase
+      - metax.csc.local
+      - qvain.csc.local
+      - etsin.csc.local
+    ports:
+      - "443:443"
+      - "80:80"
+    cap_add:
+      - ALL 
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+      - code-fairdata:/code

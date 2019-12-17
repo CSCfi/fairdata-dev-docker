@@ -1,0 +1,24 @@
+From ce0d07743d9164789687b60d69177e1252baf90e Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Sat, 14 Dec 2019 11:18:47 +0000
+Subject: [PATCH] fixed docker build
+
+---
+ etsin_finder/frontend/webpack.config.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/etsin_finder/frontend/webpack.config.js b/etsin_finder/frontend/webpack.config.js
+index dee5f9d..d5ab57d 100644
+--- a/etsin_finder/frontend/webpack.config.js
++++ b/etsin_finder/frontend/webpack.config.js
+@@ -47,7 +47,7 @@ const config = {
+       favicon: 'static/images/favicon.png',
+     }),
+   ],
+-  watch: true,
++  watch: false,
+   watchOptions: {
+     aggregateTimeout: 300,
+     poll: 1000,
+-- 
+1.8.3.1

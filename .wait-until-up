@@ -1,0 +1,41 @@
+#!/bin/bash
+#########################################################
+# Usage:
+#   .wait-until-up "metax web interface" metax.csc.local 1443 https://metax.csc.local:1443/rest/datasets
+#
+# Author(s):
+#      Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+#
+# (C) 2019 Copyright CSC - IT Center for Science Ltd.
+# All Rights Reserved.
+#########################################################
+
+WAIT_NAME=$1
+WAIT_IP=$2
+WAIT_PORT=$3
+WAIT_API=$4
+
+echo -n "Waiting until ${WAIT_NAME} (${WAIT_IP}:${WAIT_PORT}) is ready.."
+while true; do
+    nc ${WAIT_IP} ${WAIT_PORT} -z -w 59 2> /dev/null
+    if [[ $? == 0 ]]; then
+        if [[ -z ${WAIT_API} ]]; then
+            break
+        else
+            curl ${WAIT_API} --insecure -f -s > /dev/null
+            if [[ $? == 0 ]]; then
+                break
+            else
+                sleep 1
+                echo -n "."
+            fi
+        fi
+    else
+        echo -n "."
+    fi
+done
+echo -n "..ok"
+if [[ ! -z ${WAIT_API} ]]; then
+    echo -n "    (API: ${WAIT_API} .. ok)"
+fi
+echo

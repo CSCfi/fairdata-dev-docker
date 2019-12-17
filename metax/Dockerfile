@@ -27,8 +27,7 @@ RUN echo metax-user:${metax_password} | chpasswd
 RUN chown metax-user:metax /code
 
 # deps
-RUN yum install ${YUM_ARGS} https://centos7.iuscommunity.org/ius-release.rpm
-RUN yum install ${YUM_ARGS} epel-release python-devel libffi-devel openssl-devel git python-pip gcc gcc-c++ patch
+RUN yum install ${YUM_ARGS} epel-release python-devel libffi-devel openssl-devel python-pip gcc gcc-c++ patch
 RUN yum install ${YUM_ARGS} python-passlib xqilla xqilla-devel ntp htop tcl tree zile
 RUN yum install ${YUM_ARGS} python36u python36u-pip python36u-devel
 
@@ -53,7 +52,7 @@ RUN mkdir -p /var/log/metax-api/errors /metax
 #RUN source /usr/local/metax/pyenv/bin/activate && pur --force --requirement /usr/local/metax/requirements.txt
 RUN source /usr/local/metax/pyenv/bin/activate && pip3 install -r /usr/local/metax/requirements.txt
 
-RUN touch /code/do-first-time-init
+RUN touch /first-time-init
 
 
 ################################################
@@ -121,6 +120,8 @@ ADD metax-ops.diff /metax/metax-ops.diff
 RUN cd /metax && patch -p1 < metax-ops.diff
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && pip3 install ansible
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && ansible-playbook provision_cacheservers.yml
+
+RUN echo "metax.csc.local" > /etc/hostname
 
 ################################################
 # What to run there inside the container

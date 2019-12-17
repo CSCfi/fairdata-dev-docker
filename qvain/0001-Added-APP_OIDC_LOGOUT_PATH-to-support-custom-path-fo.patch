@@ -1,0 +1,46 @@
+From 7983a3e5aee3396ec8aac9995c29553028275290 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Mon, 16 Dec 2019 17:43:40 +0200
+Subject: [PATCH] Added APP_OIDC_LOGOUT_PATH to support custom path for logout.
+
+---
+ cmd/qvain-backend/api.go    | 2 +-
+ cmd/qvain-backend/config.go | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/qvain-backend/api.go b/cmd/qvain-backend/api.go
+index af03aed..d3b9dab 100644
+--- a/cmd/qvain-backend/api.go
++++ b/cmd/qvain-backend/api.go
+@@ -57,7 +57,7 @@ func NewApis(config *Config) *Apis {
+ 	apis.sessions = NewSessionApi(
+ 		config.sessions,
+ 		config.NewLogger("sessions"),
+-		config.oidcProviderUrl+"/idp/profile/Logout",
++		config.oidcProviderUrl+config.oidcLogoutPath,
+ 	)
+ 	apis.auth = NewAuthApi(config, makeOnFairdataLogin(metax, config.db, config.NewLogger("sync")), config.NewLogger("auth"))
+ 	apis.proxy = NewApiProxy(
+diff --git a/cmd/qvain-backend/config.go b/cmd/qvain-backend/config.go
+index ff04e33..612ea2b 100644
+--- a/cmd/qvain-backend/config.go
++++ b/cmd/qvain-backend/config.go
+@@ -42,6 +42,7 @@ type Config struct {
+ 	oidcProviderUrl  string
+ 	oidcClientID     string
+ 	oidcClientSecret string
++	oidcLogoutPath   string
+ 
+ 	// stats api settings
+ 	qvainStatsApiKey  string
+@@ -100,6 +101,7 @@ func ConfigFromEnv() (*Config, error) {
+ 		oidcProviderUrl:   env.Get("APP_OIDC_PROVIDER_URL"),
+ 		oidcClientID:      env.Get("APP_OIDC_CLIENT_ID"),
+ 		oidcClientSecret:  env.Get("APP_OIDC_CLIENT_SECRET"),
++		oidcLogoutPath:    env.GetDefault("APP_OIDC_LOGOUT_PATH","/idp/profile/Logout"),
+ 		MetaxApiHost:      env.Get("APP_METAX_API_HOST"),
+ 		metaxApiUser:      env.Get("APP_METAX_API_USER"),
+ 		metaxApiPass:      env.Get("APP_METAX_API_PASS"),
+-- 
+2.21.0 (Apple Git-122.2)
+

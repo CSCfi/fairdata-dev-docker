@@ -1,0 +1,7 @@
+#!/bin/bash
+docker image rm -f qvain metax etsin simplesaml fairdata fairdata-dev-docker_devcontainer_fairdata-dev-container fairdata-dev-docker_auth-consent.csc.local
+docker image rmi -f qvain metax etsin simplesaml fairdata fairdata-dev-docker_devcontainer_fairdata-dev-container fairdata-dev-docker_auth-consent.csc.local
+docker image ls | grep fairdata-dev-docker | awk '{split($0,f," "); print f[2]}' | xargs docker rmi
+docker volume ls | grep fairdata-dev-docker | awk '{split($0,f," "); print f[2]}' | xargs docker volume rm
+docker image prune -f
+docker volume prune -f

@@ -1,0 +1,330 @@
+From 78ac9f95a1367eac8c5c88e2a89165938a750a37 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Fri, 13 Dec 2019 12:19:15 +0200
+Subject: [PATCH] Patched for fairdata-dev-docker
+
+---
+ ansible/group_vars/secrets                    | 48 +++++++++++++++++
+ ansible/install_requirements.sh               |  2 +-
+ .../local_development/group_vars/all          | 54 ++++++++++++++++++-
+ ansible/provision_dataservers.yml             |  2 +-
+ ansible/roles/gunicorn/tasks/main.yml         |  6 +--
+ ansible/roles/memcached/tasks/main.yml        |  2 +-
+ ansible/roles/nginx/tasks/main.yml            |  2 +-
+ ansible/roles/os-base/tasks/main.yml          | 20 +++----
+ .../roles/provision_search_app/tasks/main.yml | 24 ++++-----
+ .../roles/provision_web_app/tasks/main.yml    | 16 +++---
+ ansible/roles/python/tasks/main.yml           |  7 +++
+ 11 files changed, 142 insertions(+), 41 deletions(-)
+ create mode 100644 ansible/group_vars/secrets
+
+diff --git a/ansible/group_vars/secrets b/ansible/group_vars/secrets
+new file mode 100644
+index 0000000..0a9ed97
+--- /dev/null
++++ b/ansible/group_vars/secrets
+@@ -0,0 +1,48 @@
++metax_rabbitmq_hosts:
++  - rabbitmq.csc.local
++
++metax_rabbitmq:
++  hosts: "{{ metax_rabbitmq_hosts }}"
++  vhost: metax
++  exchange: datasets
++  user: metax-user
++  password: changeme
++  port: 5672
++
++metax_api:
++  host: metax.csc.local
++  user: qvain
++  password: test-qvain
++  verify_ssl: False
++
++metax_qvain_api:
++  host: metax.csc.local
++  user: qvain
++  password: test-qvain
++  verify_ssl: False
++
++download_api:
++  host: download.csc.local
++  port: 4433
++  user: etsin
++  password: changeme
++
++memcached:
++  host: localhost
++  port: 11211
++
++fd_rems:
++  host: rems.csc.local
++  api_key: test
++
++saml:
++  debug: true
++  strict: true
++  sp_entity_id: https://etsin.csc.local/saml_metadata/
++  sp_acs_url: https://etsin.csc.local/acs/
++  sp_sls_url: https://etsin.csc.local/sls/
++  sp_x509_cert: changeme
++  sp_private_key: changeme
++  idp_entity_id: https://auth.csc.local/idp/shibboleth
++  idp_sso_url: https://auth.csc.local/idp/profile/SAML2/Redirect/SSO
++  idp_x509_cert: changeme
+diff --git a/ansible/install_requirements.sh b/ansible/install_requirements.sh
+index c6062fe..be650d9 100644
+--- a/ansible/install_requirements.sh
++++ b/ansible/install_requirements.sh
+@@ -1 +1 @@
+-ansible-galaxy -r requirements.yml install --roles-path=roles
++# ansible-galaxy -r requirements.yml install --roles-path=roles
+diff --git a/ansible/inventories/local_development/group_vars/all b/ansible/inventories/local_development/group_vars/all
+index 49ea27a..2cbd7e4 100644
+--- a/ansible/inventories/local_development/group_vars/all
++++ b/ansible/inventories/local_development/group_vars/all
+@@ -45,6 +45,58 @@ elasticsearch_instance:
+ 
+ elasticsearch:
+   hosts:
+-    - 127.0.0.1
++    - elasticsearch.csc.local
+   port: 9200
+   use_ssl: False
++
++
++metax_rabbitmq_hosts:
++  - rabbitmq.csc.local
++
++metax_rabbitmq:
++  hosts: "{{ metax_rabbitmq_hosts }}"
++  vhost: metax
++  exchange: datasets
++  user: metax-user
++  password: changeme
++  port: 5672
++
++metax_api:
++  host: metax.csc.local
++  user: qvain
++  password: test-qvain
++  verify_ssl: False
++
++metax_qvain_api:
++  host: metax.csc.local
++  user: qvain
++  password: test-qvain
++  verify_ssl: False
++
++download_api:
++  host: download.csc.local
++  port: 4433
++  user: etsin
++  password: changeme
++
++memcached:
++  host: localhost
++  port: 11211
++
++fd_rems:
++  host: rems.csc.local
++  api_key: test
++
++
++saml:
++  debug: true
++  strict: false
++  sp_entity_id: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/metadata.php/default-sp
++  sp_acs_url: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/saml1-acs.php/default-sp
++  sp_sls_url: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/saml2-logout.php/default-sp
++  sp_x509_cert: changeme
++  sp_private_key: changeme
++  idp_entity_id: http://127.0.0.1:2080/simplesaml/saml2/idp/metadata.php
++  idp_sso_url: http://127.0.0.1:2080/simplesaml/saml2/idp/SSOService.php
++  idp_x509_cert: changeme
++  idp_sls_url: http://127.0.0.1:2080/simplesaml/saml2/idp/SingleLogoutService.php
+diff --git a/ansible/provision_dataservers.yml b/ansible/provision_dataservers.yml
+index 863d3fb..59736e5 100644
+--- a/ansible/provision_dataservers.yml
++++ b/ansible/provision_dataservers.yml
+@@ -5,5 +5,5 @@
+   roles:
+     - os-base
+     - python
+-    - elasticsearch
++#    - elasticsearch
+     - provision_search_app
+diff --git a/ansible/roles/gunicorn/tasks/main.yml b/ansible/roles/gunicorn/tasks/main.yml
+index 06ad206..29627d2 100644
+--- a/ansible/roles/gunicorn/tasks/main.yml
++++ b/ansible/roles/gunicorn/tasks/main.yml
+@@ -24,10 +24,6 @@
+     - name: Copy gunicorn service file
+       template: src=templates/gunicorn.service dest=/usr/lib/systemd/system/gunicorn.service
+ 
+-    - name: Systemctl daemon-reload
+-      shell: "systemctl daemon-reload"
+-
+     - name: Restart gunicorn
+-      service: name=gunicorn state=restarted enabled=yes
+-
++      shell: systemctl enable gunicorn
+   when: deployment_environment_id != 'local_development'
+diff --git a/ansible/roles/memcached/tasks/main.yml b/ansible/roles/memcached/tasks/main.yml
+index 1d78800..45679cf 100644
+--- a/ansible/roles/memcached/tasks/main.yml
++++ b/ansible/roles/memcached/tasks/main.yml
+@@ -2,4 +2,4 @@
+   yum: name=memcached state=latest
+ 
+ - name: Make sure Memcached is running
+-  service: name=memcached enabled=yes state=started
++  shell: systemctl enable memcached
+diff --git a/ansible/roles/nginx/tasks/main.yml b/ansible/roles/nginx/tasks/main.yml
+index 2c3fbab..0d7c924 100644
+--- a/ansible/roles/nginx/tasks/main.yml
++++ b/ansible/roles/nginx/tasks/main.yml
+@@ -38,4 +38,4 @@
+   with_items: "{{ nginx_es_credentials }}"
+ 
+ - name: NGINX | Restart NGINX
+-  service: name=nginx enabled=yes state=restarted
++  shell: systemctl enable nginx
+diff --git a/ansible/roles/os-base/tasks/main.yml b/ansible/roles/os-base/tasks/main.yml
+index 6639b3e..f36818a 100644
+--- a/ansible/roles/os-base/tasks/main.yml
++++ b/ansible/roles/os-base/tasks/main.yml
+@@ -45,9 +45,9 @@
+       - pip
+       - setuptools
+ 
+-- name: Install pur for updating pip dependencies using pip
+-  pip: name=pur state=latest
+-  when: deployment_environment_id == 'local_development'
++#- name: Install pur for updating pip dependencies using pip
++#  pip: name=pur state=latest
++#  when: deployment_environment_id == 'local_development'
+ 
+ - name: Reinstall glibc-common just in case to make Finnish locale available
+   shell: yum -y reinstall glibc-common
+@@ -55,11 +55,11 @@
+     warn: False
+   when: deployment_environment_id == 'local_development'
+ 
+-- name: Disable SELinux
+-  selinux: state=permissive policy=targeted
++#- name: Disable SELinux
++#  selinux: state=permissive policy=targeted
+ 
+-- name: Set locale LANG to en_US.UTF-8
+-  shell: localectl set-locale LANG=en_US.UTF-8
++#- name: Set locale LANG to en_US.UTF-8
++#  shell: localectl set-locale LANG=en_US.UTF-8
+ 
+ - name: Set default locale as LC_ALL to fi_FI.UTF-8
+   lineinfile:
+@@ -73,9 +73,9 @@
+     state: present
+     line: "LC_CTYPE=\"fi_FI.UTF-8\""
+ 
+-- name: Set timezone to Europe/Helsinki
+-  timezone:
+-    name: Europe/Helsinki
++#- name: Set timezone to Europe/Helsinki
++#  timezone:
++#    name: Europe/Helsinki
+ 
+ - include_role: name=users
+ 
+diff --git a/ansible/roles/provision_search_app/tasks/main.yml b/ansible/roles/provision_search_app/tasks/main.yml
+index f0927e0..caa4f98 100644
+--- a/ansible/roles/provision_search_app/tasks/main.yml
++++ b/ansible/roles/provision_search_app/tasks/main.yml
+@@ -13,10 +13,10 @@
+     become_user: "{{ app_user }}"
+     ignore_errors: yes
+ 
+-  - name: Update search app python package requirements to their latest versions
+-    shell: pur --force --requirement {{ search_app_base_path }}/requirements.txt
+-    become_user: "{{ app_user }}"
+-    when: deployment_environment_id == 'local_development'
++#  - name: Update search app python package requirements to their latest versions
++#    shell: pur --force --requirement {{ search_app_base_path }}/requirements.txt
++#    become_user: "{{ app_user }}"
++#    when: deployment_environment_id == 'local_development'
+ 
+   - name: Install search app python package requirements
+     pip: requirements={{ search_app_base_path }}/requirements.txt virtualenv={{ python_virtualenv_path }}
+@@ -78,15 +78,13 @@
+       line: "%etsin ALL=NOPASSWD: /sbin/service rabbitmq-consumer status, /sbin/service rabbitmq-consumer start, /sbin/service rabbitmq-consumer restart, /sbin/service rabbitmq-consumer stop, /bin/systemctl status rabbitmq-consumer.service, /bin/systemctl start rabbitmq-consumer.service, /bin/systemctl restart rabbitmq-consumer.service, /bin/systemctl stop rabbitmq-consumer.service"
+ 
+   - name: Reload systemd and enable RabbitMQ consumer service
+-    systemd:
+-      daemon_reload: yes
+-      name: rabbitmq-consumer
+-      enabled: yes
+-
+-  - name: Start RabbitMQ consumer service
+-    systemd:
+-      state: started
+-      name: rabbitmq-consumer
++    shell: systemctl enable rabbitmq-consumer
++
++#  - name: Start RabbitMQ consumer service
++#    systemd:
++#      state: started
++#      name: rabbitmq-consumer
++
+ 
+   - debug:
+       msg: "{{ deployment_environment_id }} search app environment successfully set up."
+diff --git a/ansible/roles/provision_web_app/tasks/main.yml b/ansible/roles/provision_web_app/tasks/main.yml
+index a363cae..20ad523 100644
+--- a/ansible/roles/provision_web_app/tasks/main.yml
++++ b/ansible/roles/provision_web_app/tasks/main.yml
+@@ -15,19 +15,19 @@
+     become_user: "{{ app_user }}"
+     ignore_errors: yes
+ 
+-  - name: Update app python package requirements to their latest versions
+-    shell: pur --force --requirement {{ web_app_base_path }}/requirements.txt
+-    become_user: "{{ app_user }}"
+-    when: deployment_environment_id == 'local_development'
++#  - name: Update app python package requirements to their latest versions
++#    shell: pur --force --requirement {{ web_app_base_path }}/requirements.txt
++#    become_user: "{{ app_user }}"
++#    when: deployment_environment_id == 'local_development'
+ 
+   - name: Install web app python package requirements
+     pip: requirements={{ web_app_base_path }}/requirements.txt virtualenv={{ python_virtualenv_path }}
+     become_user: "{{ app_user }}"
+ 
+-  - name: Update app python test package requirements to their latest versions
+-    shell: pur --force --requirement {{ web_app_base_path }}/test_requirements.txt
+-    become_user: "{{ app_user }}"
+-    when: deployment_environment_id == 'local_development'
++#  - name: Update app python test package requirements to their latest versions
++#    shell: pur --force --requirement {{ web_app_base_path }}/test_requirements.txt
++#    become_user: "{{ app_user }}"
++#    when: deployment_environment_id == 'local_development'
+ 
+   - name: Install web app python test package requirements
+     pip: requirements={{ web_app_base_path }}/test_requirements.txt virtualenv={{ python_virtualenv_path }}
+diff --git a/ansible/roles/python/tasks/main.yml b/ansible/roles/python/tasks/main.yml
+index cefcec7..87ad941 100644
+--- a/ansible/roles/python/tasks/main.yml
++++ b/ansible/roles/python/tasks/main.yml
+@@ -44,3 +44,10 @@
+ - name: install wheel python package to enable using pip for installing requirements as {{ app_user }}
+   pip: name=wheel virtualenv={{ python_virtualenv_path }}
+   become_user: "{{ app_user }}"
++
++- name: Ensure latest pip in venv
++  pip:
++    name: pip
++    virtualenv: "{{ python_virtualenv_path }}"
++    state: latest
++  become_user: "{{ app_user }}"
+-- 
+2.21.0 (Apple Git-122.2)
+

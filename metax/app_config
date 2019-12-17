@@ -10,7 +10,7 @@ ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART: False
 METAX_ENV: local_development
 
 # url on the auth server where logout button on /secure page will finally redirect the user
-AUTH_SERVER_LOGOUT_URL: https://auth.domain.fi/idp/profile/Logout
+AUTH_SERVER_LOGOUT_URL: http://auth.csc.local:4444/oauth2/sessions/logout
 
 # Variables related to database
 METAX_DATABASE: metax_db

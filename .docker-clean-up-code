@@ -1,0 +1,4 @@
+#!/bin/bash
+docker volume ls | grep fairdata-dev-docker_code | awk '{split($0,f," "); print f[2]}' | xargs docker volume rm
+docker volume ls | grep fairdata-dev-docker_user | awk '{split($0,f," "); print f[2]}' | xargs docker volume rm
+docker volume ls | grep fairdata-dev-docker_install | awk '{split($0,f," "); print f[2]}' | xargs docker volume rm
