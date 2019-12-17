@@ -106,7 +106,7 @@ qvain-dev: new_password resolve test-docker venv config
 	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
 	@echo
 
-qvain-shell:
+qvain-shell: venv
 	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
 
 qvain-tests:
@@ -116,7 +116,7 @@ qvain-tests:
 simplesaml-dev: new_password resolve test-docker venv config
 	@$(VENV) docker-compose up --build -d simplesaml.csc.local
 
-simplesaml-shell:
+simplesaml-shell: venv
 	@$(VENV) docker-compose exec simplesaml.csc.local /bin/bash
 
 etsin-dev: new_password resolve test-docker venv config
@@ -145,13 +145,13 @@ etsin-dev: new_password resolve test-docker venv config
 	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
 	@echo
 
-etsin-shell:
+etsin-shell: venv
 	@$(VENV) docker-compose exec etsin.csc.local /bin/bash
 
-etsin-logs:
+etsin-logs: venv
 	@$(VENV) docker-compose exec etsin.csc.local /usr/bin/journalctl -fu fairdata-etsin-init -n 1000
 
-download-shell:
+download-shell: venv
 	@$(VENV) docker-compose exec download.csc.local /bin/bash
 
 test-docker:
@@ -174,7 +174,7 @@ metax-dev: resolve config test-docker venv
 	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub."
 	@echo
 
-metax-shell:
+metax-shell: venv
 	@$(VENV) docker-compose exec metax.csc.local /bin/bash
 
 metax-wait:
@@ -203,13 +203,13 @@ download-wait:
 fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qvain-wait
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
-down: hydra-login-consent-node download
+down: venv hydra-login-consent-node download
 	$(VENV) docker-compose down
 
-logs:
+logs: venv
 	$(VENV) docker-compose logs -f
 
-clean:
+clean: venv
 	$(VENV) docker-compose stop
 	$(VENV) docker-compose rm -f
 	rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
@@ -228,7 +228,7 @@ download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
-config: new_password download hydra-login-consent-node
+config: venv new_password download hydra-login-consent-node
 	@echo "=== Configuring workspace ======================"
 	@echo -n " - Downloading dependencies.."
 	@test -f node-v12.13.1-linux-x64.tar.xz || curl -O https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz > /dev/null
@@ -282,7 +282,7 @@ rebuild: down prune dev
 clean-code:
 	./.docker-clean-up-code
 
-fairdata-dev: resolve config
+fairdata-dev: venv resolve config
 	@echo "=== Building containers ========================"
 	@$(VENV) docker-compose up --build -d fairdata.csc.local
 	@echo "=== Containers have been built! ================"
