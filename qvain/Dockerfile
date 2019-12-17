@@ -101,7 +101,6 @@ ADD nginx/nginx.conf /etc/nginx/
 # Add service file to start
 RUN systemctl enable nginx
 
-RUN echo "qvain.csc.local" > /etc/hostname
 
 EXPOSE 80
 EXPOSE 443

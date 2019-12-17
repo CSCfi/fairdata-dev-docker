@@ -32,8 +32,6 @@ RUN ln -s /code/www /usr/share/nginx/html
 RUN rm -f /etc/nginx/nginx.conf
 RUN ln -s /code/nginx.conf /etc/nginx/nginx.conf
 
-RUN echo "fairdata.csc.local" > /etc/hostname
-
 EXPOSE 80
 EXPOSE 443
 

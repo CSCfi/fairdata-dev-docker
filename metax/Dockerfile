@@ -121,8 +121,6 @@ RUN cd /metax && patch -p1 < metax-ops.diff
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && pip3 install ansible
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && ansible-playbook provision_cacheservers.yml
 
-RUN echo "metax.csc.local" > /etc/hostname
-
 ################################################
 # What to run there inside the container
 CMD /usr/sbin/init

@@ -83,8 +83,6 @@ USER root
 
 WORKDIR /code
 
-RUN echo "simplesaml.csc.local" > /etc/hostname
-
 EXPOSE 80
 EXPOSE 443
 

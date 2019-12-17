@@ -93,7 +93,6 @@ RUN echo "etsin-user ALL=NOPASSWD: ALL" >> /etc/sudoers
 # Enable the provision on container boot
 RUN touch /first-time-init
 
-RUN echo "etsin.csc.local" > /etc/hostname
 
 EXPOSE 80
 EXPOSE 443
