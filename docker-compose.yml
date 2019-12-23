@@ -3,6 +3,7 @@ volumes:
   metaxdata:
   qvaindata:
   elasticsearchdata:
+  idadata:
   code-qvain:
   code-metax:
   code-download:
@@ -15,12 +16,15 @@ volumes:
   user-etsin:
   code-simplesaml:
   code-fairdata:
+  code-ida:
 
 services:
   simplesaml.csc.local:
     image: simplesaml:1
     build:
       context: ./simplesaml
+    domainname: csc.local
+    hostname: simplesaml
     privileged: true
     ports:
       - "2230:22"
@@ -39,6 +43,8 @@ services:
 
   auth.csc.local:
     image: oryd/hydra:latest
+    domainname: csc.local
+    hostname: auth-consent
     ports:
       - "${AUTH_PUBLIC_PORT:-4444}:4444" # Public port
       - "${AUTH_ADMIN_PORT:-4445}:4445" # Admin port
@@ -57,10 +63,13 @@ services:
     restart: unless-stopped
 
   auth-consent.csc.local:
-    environment:
-      - HYDRA_ADMIN_URL=http://auth.csc.local:${AUTH_ADMIN_PORT:-4445}
+    image: auth-consent:1
+    domainname: csc.local
+    hostname: auth-consent
     build:
       context: ./hydra-login-consent-node
+    environment:
+      - HYDRA_ADMIN_URL=http://auth.csc.local:${AUTH_ADMIN_PORT:-4445}
     ports:
       - "${AUTH_CONSENT_PORT:-3000}:3000"
     restart: unless-stopped
@@ -81,20 +90,34 @@ services:
     cap_add:
       - ALL
 
+  ida-postgres.csc.local:
+    image: postgres:9
+    domainname: csc.local
+    hostname: ida-postgres
+    environment:
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: nextcloud
+      POSTGRES_DB: nextcloud
+      PGDATA: /data/pg96/nextcloud
+    volumes:
+      - idadata:/data/
+
   metax-postgres.csc.local:
     image: postgres:9
+    domainname: csc.local
+    hostname: metax-postgres
     environment:
       POSTGRES_USER: metax_db_user
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: metax_db
       PGDATA: /data/pg96/metax
-    ports:
-      - "5432:5432"
     volumes:
       - metaxdata:/data/
 
   qvain-postgres.csc.local:
     image: postgres:9
+    domainname: csc.local
+    hostname: qvain-postgres
     environment:
       POSTGRES_USER: qvain
       POSTGRES_PASSWORD: password
@@ -105,17 +128,32 @@ services:
 
   rabbitmq.csc.local:
     image: rabbitmq:3.7
+    domainname: csc.local
+    hostname: rabbitmq
     environment:
+      RABBITMQ_NODENAME: metax@rabbitmq.csc.local
+      RABBITMQ_USE_LONGNAME: "true"
+      RABBITMQ_ERLANG_COOKIE: supersecret
       RABBITMQ_DEFAULT_USER: metax-user
       RABBITMQ_DEFAULT_PASS: changeme
       RABBITMQ_DEFAULT_VHOST: metax
-    ports:
-      - "5672:5672"
+
+  rabbitmq-ida.csc.local:
+    image: rabbitmq:3.8-management
+    domainname: csc.local
+    hostname: rabbitmq-ida
+    environment:
+      RABBITMQ_NODENAME: ida@rabbitmq-ida.csc.local
+      RABBITMQ_USE_LONGNAME: "true"
+      RABBITMQ_ERLANG_COOKIE: supersecret
+      RABBITMQ_DEFAULT_USER: ida-admin
+      RABBITMQ_DEFAULT_PASS: changeme
+      RABBITMQ_DEFAULT_VHOST: ida-vhost
 
   elasticsearch.csc.local:
     image: elasticsearch:5.6.11
-    ports:
-      - "9200:9200"
+    domainname: csc.local
+    hostname: elasticsearch
     environment:
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"
     volumes:
@@ -123,6 +161,8 @@ services:
 
   download.csc.local:
     image: fairdownload:1
+    domainname: csc.local
+    hostname: download
     build:
       context: ./download
       args:
@@ -131,7 +171,6 @@ services:
         metax_secrets: service/metax.properties.template
     privileged: true
     ports:
-      - "2224:22"
       - "${DOWNLOAD_PORT:-8433}:8433"
     volumes:
       - type: bind
@@ -145,6 +184,8 @@ services:
 
   metax.csc.local:
     image: metax:1
+    domainname: csc.local
+    hostname: metax
     build:
       context: ./metax
       args:
@@ -152,7 +193,6 @@ services:
         metax_branch: "${METAX_BRANCH:-test}"
     privileged: true
     ports:
-      - "2223:22"
       - "${METAX_PORT_HTTPS:-1443}:443"
       - "${METAX_PORT_HTTP:-1080}:80"
     depends_on:
@@ -173,6 +213,8 @@ services:
 
   qvain.csc.local:
     image: qvain:1
+    domainname: csc.local
+    hostname: qvain
     build:
       context: ./qvain
       args:
@@ -186,10 +228,7 @@ services:
       - auth.csc.local
       - auth-consent.csc.local
     ports:
-      - "2222:22"
       - "${QVAIN_PORT_HTTPS:-443}:443"
-      - "8080:8080"
-      - "8081:8081"
       - "${QVAIN_PORT_HTTP:-80}:80"
     volumes:
       - type: bind
@@ -204,6 +243,8 @@ services:
 
   etsin.csc.local:
     image: etsin:1
+    domainname: csc.local
+    hostname: etsin
     build:
       context: ./etsin
       args:
@@ -229,16 +270,43 @@ services:
       - code-etsin:/code
       - user-etsin:/home/etsin-user
 
+  ida.csc.local:
+    image: ida:1
+    domainname: csc.local
+    hostname: ida
+    build:
+      context: ./ida
+    privileged: true
+    depends_on:
+      - cscdevbase
+      - rabbitmq-ida.csc.local
+      - metax.csc.local
+    ports:
+      - "${IDA_PORT_ALT_HTTPS:-5433}:4433"
+      - "${IDA_PORT_HTTPS:-443}:443"
+      - "${IDA_PORT_HTTP:-80}:80"
+    cap_add:
+      - ALL
+    volumes:
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /sys/fs/cgroup
+        read_only: true
+      - code-ida:/code
+
   fairdata.csc.local:
     image: fairdata:1
     build:
       context: ./fairdata
+    domainname: csc.local
+    hostname: fairdata
     privileged: true
     depends_on:
       - cscdevbase
       - metax.csc.local
       - qvain.csc.local
       - etsin.csc.local
+      - ida.csc.local
     ports:
       - "443:443"
       - "80:80"
@@ -250,3 +318,4 @@ services:
         target: /sys/fs/cgroup
         read_only: true
       - code-fairdata:/code
+

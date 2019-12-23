@@ -1,0 +1,13 @@
+[Unit]
+Description = Fairdata IDA Init
+
+[Service]
+ExecStart = /opt/fairdata/ida/fairdata-ida-init.sh
+EnvironmentFile = /etc/environment
+Restart=on-failure
+RestartSec=30s
+Wants=rh-postgresql96-postgresql.service
+After=network.target
+
+[Install]
+WantedBy = multi-user.target

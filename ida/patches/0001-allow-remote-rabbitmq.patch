@@ -1,0 +1,94 @@
+From b48df0dffcaa12e98952e5c406472a58c88d97f9 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 19 Dec 2019 11:21:58 +0000
+Subject: [PATCH] Allow use of remote rabbitmq
+
+---
+ agents/utils/rabbitmq.py              |  2 +-
+ utils/rabbitmq_create_users           | 23 ++++++++++++-----------
+ utils/rabbitmq_delete_all             |  6 +++---
+ utils/rabbitmq_list_users_permissions |  6 +++---
+ 4 files changed, 19 insertions(+), 18 deletions(-)
+
+diff --git a/agents/utils/rabbitmq.py b/agents/utils/rabbitmq.py
+index 7a6db0d6..ff7073b3 100755
+--- a/agents/utils/rabbitmq.py
++++ b/agents/utils/rabbitmq.py
+@@ -179,7 +179,7 @@ def _create_vhost():
+     # admin must be assigned to the vhost, otherwise we wont be able to edit the vhost later
+     _rabbitmq_api_call(
+         'put',
+-        '/permissions/%s/%s' % (VHOST_NAME, 'admin'),
++        '/permissions/%s/%s' % (VHOST_NAME, uida_conf_vars['RABBIT_ADMIN_USER']),
+         data=json_dumps({"configure": ".*", "write": ".*", "read": ".*"}),
+         error_msg='Admin user was not added to vhost'
+     )
+diff --git a/utils/rabbitmq_create_users b/utils/rabbitmq_create_users
+index 66bc2c71..04e7f2b7 100755
+--- a/utils/rabbitmq_create_users
++++ b/utils/rabbitmq_create_users
+@@ -29,20 +29,21 @@ if [ "$RABBIT_VHOST" = "" -o "$RABBIT_ADMIN_USER" = "" -o "$RABBIT_WORKER_USER"
+ 	exit 1
+ fi
+ 
+-rabbitmqctl add_user "$RABBIT_ADMIN_USER" "$RABBIT_ADMIN_PASS"
+-rabbitmqctl add_user "$RABBIT_WORKER_USER" "$RABBIT_WORKER_PASS"
+-rabbitmqctl add_user "$RABBIT_MONITOR_USER" "$RABBIT_MONITOR_PASS"
++#rabbitmqctl -l -n ida@${RABBIT_HOST} add_user "$RABBIT_ADMIN_USER" "$RABBIT_ADMIN_PASS"
++rabbitmqctl -l -n ida@${RABBIT_HOST} add_user "$RABBIT_WORKER_USER" "$RABBIT_WORKER_PASS"
++rabbitmqctl -l -n ida@${RABBIT_HOST} add_user "$RABBIT_MONITOR_USER" "$RABBIT_MONITOR_PASS"
+ 
+-rabbitmqctl set_permissions "$RABBIT_ADMIN_USER" '.*' '.*' '.*'
++#rabbitmqctl -l -n ida@${RABBIT_HOST} set_permissions "$RABBIT_ADMIN_USER" '.*' '.*' '.*'
+ 
+-rabbitmqctl add_vhost "$RABBIT_VHOST"
++#rabbitmqctl -l -n ida@${RABBIT_HOST} add_vhost "$RABBIT_VHOST"
+ 
+-rabbitmqctl set_permissions -p "$RABBIT_VHOST" "$RABBIT_WORKER_USER" '^$' '.*' '.*'
+-rabbitmqctl set_permissions -p "$RABBIT_VHOST" "$RABBIT_MONITOR_USER" '^$' '^$' '.*'
++rabbitmqctl -l -n ida@${RABBIT_HOST} set_permissions -p "$RABBIT_VHOST" "$RABBIT_ADMIN_USER" '^$' '.*' '.*'
++rabbitmqctl -l -n ida@${RABBIT_HOST} set_permissions -p "$RABBIT_VHOST" "$RABBIT_WORKER_USER" '^$' '.*' '.*'
++rabbitmqctl -l -n ida@${RABBIT_HOST} set_permissions -p "$RABBIT_VHOST" "$RABBIT_MONITOR_USER" '^$' '^$' '.*'
+ 
+-rabbitmqctl delete_user guest
++rabbitmqctl -l -n ida@${RABBIT_HOST} delete_user guest
+ 
+-rabbitmqctl set_user_tags "$RABBIT_ADMIN_USER" administrator
+-rabbitmqctl set_user_tags "$RABBIT_WORKER_USER" management
+-rabbitmqctl set_user_tags "$RABBIT_MONITOR_USER" management
++#rabbitmqctl -l -n ida@${RABBIT_HOST} set_user_tags "$RABBIT_ADMIN_USER" administrator
++rabbitmqctl -l -n ida@${RABBIT_HOST} set_user_tags "$RABBIT_WORKER_USER" management
++rabbitmqctl -l -n ida@${RABBIT_HOST} set_user_tags "$RABBIT_MONITOR_USER" management
+ 
+diff --git a/utils/rabbitmq_delete_all b/utils/rabbitmq_delete_all
+index af8897e6..6f26a7d3 100755
+--- a/utils/rabbitmq_delete_all
++++ b/utils/rabbitmq_delete_all
+@@ -34,7 +34,7 @@ fi
+ 
+ echo "Running: rabbitmqctl stop_app; rabbitmqctl reset; rabbitmqctl start_app"
+ 
+-rabbitmqctl stop_app
+-rabbitmqctl reset
+-rabbitmqctl start_app
++rabbitmqctl -l -n ida@${RABBIT_HOST} stop_app
++rabbitmqctl -l -n ida@${RABBIT_HOST} reset
++rabbitmqctl -l -n ida@${RABBIT_HOST} start_app
+ 
+diff --git a/utils/rabbitmq_list_users_permissions b/utils/rabbitmq_list_users_permissions
+index ef7833be..9509967f 100755
+--- a/utils/rabbitmq_list_users_permissions
++++ b/utils/rabbitmq_list_users_permissions
+@@ -22,7 +22,7 @@
+ # @link     https://research.csc.fi/
+ #--------------------------------------------------------------------------------
+ 
+-rabbitmqctl list_users
+-rabbitmqctl list_permissions | expand -t 10
+-rabbitmqctl list_permissions -p ida-vhost| expand -t 10
++rabbitmqctl -l -n ida@${RABBIT_HOST} list_users
++rabbitmqctl -l -n ida@${RABBIT_HOST} list_permissions | expand -t 10
++rabbitmqctl -l -n ida@${RABBIT_HOST} list_permissions -p ida-vhost| expand -t 10
+ 
+-- 
+2.16.5

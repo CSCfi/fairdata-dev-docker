@@ -180,6 +180,9 @@ metax-shell: venv
 metax-wait:
 	@./.wait-until-up "metax web interface" metax.csc.local 1443 https://metax.csc.local:1443/rest/datasets
 
+ida-shell: venv
+	@$(VENV) docker-compose exec ida.csc.local /bin/bash
+
 qvain-wait:
 	@./.wait-until-up "qvain web interface" qvain.csc.local 3443 https://qvain.csc.local:3443/api/auth/login
 
@@ -188,6 +191,12 @@ etsin-wait:
 
 simplesaml-wait:
 	@./.wait-until-up "simplesaml web interface" simplesaml.csc.local 2080
+
+ida-wait:
+	@./.wait-until-up "ida web interface" ida.csc.local 5080
+
+ida/ida2-csc-service:
+	@test -d ida/ida2-csc-service || (cd ida && git clone --depth 1 git@github.com:CSCfi/ida2-csc-service.git)
 
 auth-wait:
 	@./.wait-until-up "auth interface" auth.csc.local 4444
@@ -200,7 +209,7 @@ auth-wait:
 download-wait:
 	@./.wait-until-up "download interface" download.csc.local 8433
 
-fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qvain-wait
+fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qvain-wait ida-wait
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
 down: venv hydra-login-consent-node download
@@ -228,7 +237,7 @@ download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
-config: venv new_password download hydra-login-consent-node
+config: venv new_password download hydra-login-consent-node ida/ida2-csc-service
 	@echo "=== Configuring workspace ======================"
 	@echo -n " - Downloading dependencies.."
 	@test -f node-v12.13.1-linux-x64.tar.xz || curl -O https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz > /dev/null
@@ -266,6 +275,9 @@ config: venv new_password download hydra-login-consent-node
 	@echo "AUTH_TOKEN_PORT=5555" >> .env
 	@echo "SAML_PORT_HTTPS=2443" >> .env
 	@echo "SAML_PORT_HTTP=2080" >> .env
+	@echo "IDA_PORT_HTTPS=5443" >> .env
+	@echo "IDA_PORT_HTTP=5080" >> .env
+	@echo "IDA_PORT_ALT_HTTPS=5433" >> .env
 	@echo "..setup complete."
 
 	@echo " - Using following docker configuration:"
@@ -275,7 +287,7 @@ config: venv new_password download hydra-login-consent-node
 	@echo "=== Workspace has been configured =============="
 	@echo
 
-dev: clean-code fairdata-dev
+dev: down clean-code fairdata-dev
 
 rebuild: down prune dev
 
