@@ -120,7 +120,7 @@ services:
     hostname: qvain-postgres
     environment:
       POSTGRES_USER: qvain
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: changeme
       POSTGRES_DB: qvaindb
       PGDATA: /data/pg96/QVAIN_prod
     volumes:

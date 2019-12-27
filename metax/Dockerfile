@@ -52,7 +52,7 @@ RUN mkdir -p /var/log/metax-api/errors /metax
 #RUN source /usr/local/metax/pyenv/bin/activate && pur --force --requirement /usr/local/metax/requirements.txt
 RUN source /usr/local/metax/pyenv/bin/activate && pip3 install -r /usr/local/metax/requirements.txt
 
-RUN touch /first-time-init
+RUN touch /code/first-time-init
 
 
 ################################################

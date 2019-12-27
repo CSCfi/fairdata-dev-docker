@@ -213,14 +213,13 @@ fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qva
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
 down: venv hydra-login-consent-node download
-	$(VENV) docker-compose down
+	$(VENV) docker-compose down -v
 
 logs: venv
 	$(VENV) docker-compose logs -f
 
 clean: venv
-	$(VENV) docker-compose stop
-	$(VENV) docker-compose rm -f
+	$(VENV) docker-compose down --rmi all -v
 	rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
 
 hydra-login-consent-node:

@@ -31,7 +31,8 @@ RUN chown qvain:qvain /code
 
 # Others
 ADD env /etc/environment
-RUN touch /first-time-init
+RUN touch /code/first-time-init
+RUN chown qvain:qvain /code/first-time-init
 
 EXPOSE 8080
 

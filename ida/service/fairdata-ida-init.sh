@@ -11,13 +11,13 @@
 set -e
 set -a && source /etc/environment && set +a
 
-if [[ -f /first-time-init ]]; then
+if [[ -f /code/first-time-init ]]; then
 
     echo "Fix PHP memory limit.."
     sed -i "s/128M/512M/g" /etc/opt/rh/rh-php71/php.ini
     echo "..fixed!"
 
-    if [[ ! -f /nextcloud-installed ]]; then
+    if [[ ! -f /code/nextcloud-installed ]]; then
         echo "Ensure that there is no old config"
         rm -f /var/ida/nextcloud/config/config.php
         echo "..ensured."
@@ -49,7 +49,7 @@ if [[ -f /first-time-init ]]; then
             sudo -u apache ./occ maintenance:install --database "pgsql" --database-name "nextcloud" --database-host "127.0.0.1" --database-user "nextcloud" --database-pass "nextcloud" --admin-user "admin" --admin-pass "test"  --data-dir "/mnt/storage_vol01/ida"
         popd
         echo "..nextcloud installed."
-        touch /nextcloud-installed
+        touch /code/nextcloud-installed
     fi
 
     echo "Test that the service is up.."
@@ -113,7 +113,7 @@ if [[ -f /first-time-init ]]; then
     sudo -u apache /var/ida/tests/utils/initialize_test_accounts
     echo "..created."
 
-    rm /first-time-init
+    rm -f /code/first-time-init
 fi
 
 systemctl start rabbitmq-metadata-agent

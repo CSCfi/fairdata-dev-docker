@@ -17,7 +17,7 @@ export LANG=fi_FI.UTF8
 export 
 
 
-if [[ -f /first-time-init ]]; then
+if [[ -f /code/first-time-init ]]; then
 
     echo "Installing local redis.."
     pushd /metax/ansible
@@ -45,7 +45,7 @@ if [[ -f /first-time-init ]]; then
     echo "..ensured."
     echo
     echo "Remove the first-time-init file.."
-    rm -f /first-time-init
+    rm -f /code/first-time-init
     echo "..removed."
     echo
 

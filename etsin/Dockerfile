@@ -91,7 +91,7 @@ RUN systemctl enable fairdata-etsin-init
 RUN echo "etsin-user ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 # Enable the provision on container boot
-RUN touch /first-time-init
+RUN touch /code/first-time-init
 
 
 EXPOSE 80
