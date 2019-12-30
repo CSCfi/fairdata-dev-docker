@@ -63,7 +63,8 @@ RUN mkdir -p /etc/pki/selfsigned/
 RUN mkdir -p /etc/nginx/metax/
 RUN mkdir -p /etc/pki/web/
 RUN openssl dhparam -out /etc/pki/web/dhparam.pem 2048
-RUN openssl req -x509 -nodes -subj '/C=FI/ST=Uusimaa/L=Espoo/O=CSC - Tieteen tietotekniikan keskus Oy/CN=metax.csc.local' -days 365 -newkey rsa:2048 -keyout /etc/pki/selfsigned/cert.key -out /etc/pki/selfsigned/cert.crt
+ADD server.crt /etc/pki/selfsigned/cert.crt
+ADD server.pem /etc/pki/selfsigned/cert.key
 ADD nginx/api_response_headers.conf /etc/nginx/metax/
 ADD nginx/elastic_headers.conf /etc/nginx/metax/
 ADD nginx/static_file_headers.conf /etc/nginx/metax/

@@ -84,7 +84,8 @@ ADD config/httpd.conf /etc/httpd/conf/httpd.conf
 ADD config/ssl.conf /etc/httpd/conf.d/ssl.conf
 
 RUN mkdir -p /etc/httpd/ssl
-RUN cd /etc/httpd/ssl && openssl req -x509 -nodes -subj '/C=FI/ST=Uusimaa/L=Espoo/O=CSC - Tieteen tietotekniikan keskus Oy/CN=qvain.csc.local' -days 365 -newkey rsa:2048  -keyout localhost.key -out localhost.crt
+ADD server.crt /etc/httpd/ssl/localhost.crt
+ADD server.pem /etc/httpd/ssl/localhost.key
 RUN systemctl enable httpd
 
 RUN echo "bind 127.0.0.1" >> /etc/redis.conf

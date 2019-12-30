@@ -76,7 +76,8 @@ ADD configs/config.php /code/simplesamlphp/config/config.php
 ADD configs/authsources.php /code/simplesamlphp/config/authsources.php
 
 RUN mkdir -p /code/simplesamlphp/cert/
-RUN openssl req -x509 -days 3652 -nodes -subj '/C=FI/ST=Uusimaa/L=Espoo/O=CSC - Tieteen tietotekniikan keskus Oy/CN=qvain.csc.local' -newkey rsa:2048 -out /code/simplesamlphp/cert/server.crt -keyout /code/simplesamlphp/cert/server.pem
+ADD server.crt /code/simplesamlphp/cert/server.crt
+ADD server.pem /code/simplesamlphp/cert/server.pem
 RUN touch /var/simplesamlphp/modules/exampleauth/enable
 
 USER root

@@ -23,7 +23,8 @@ RUN systemctl enable nginx
 RUN mkdir -p /etc/pki/selfsigned/
 RUN mkdir -p /etc/pki/web/
 RUN openssl dhparam -out /etc/pki/web/dhparam.pem 2048
-RUN openssl req -x509 -nodes -subj '/C=FI/ST=Uusimaa/L=Espoo/O=CSC - Tieteen tietotekniikan keskus Oy/CN=fairdata.csc.local' -days 365 -newkey rsa:2048 -keyout /etc/pki/selfsigned/cert.key -out /etc/pki/selfsigned/cert.crt
+ADD server.crt /etc/pki/selfsigned/cert.crt
+ADD server.pem /etc/pki/selfsigned/cert.key
 
 RUN mkdir -p /code/www
 RUN rm -Rf /usr/share/nginx/html

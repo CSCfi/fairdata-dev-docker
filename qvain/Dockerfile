@@ -90,7 +90,8 @@ RUN mkdir -p /etc/pki/selfsigned/
 RUN mkdir -p /etc/nginx/qvain/
 RUN mkdir -p /etc/pki/web/
 RUN openssl dhparam -out /etc/pki/web/dhparam.pem 2048
-RUN openssl req -x509 -nodes -subj '/C=FI/ST=Uusimaa/L=Espoo/O=CSC - Tieteen tietotekniikan keskus Oy/CN=qvain.csc.local' -days 365 -newkey rsa:2048 -keyout /etc/pki/selfsigned/cert.key -out /etc/pki/selfsigned/cert.crt
+ADD server.crt /etc/pki/selfsigned/cert.crt
+ADD server.pem /etc/pki/selfsigned/cert.key
 ADD nginx/includes/api.conf /etc/nginx/qvain/
 ADD nginx/includes/nginx-cache-control.conf /etc/nginx/qvain/
 ADD nginx/includes/nginx-robots-headers.conf /etc/nginx/qvain/

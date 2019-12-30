@@ -10,6 +10,7 @@
 #########################################################
 
 VENV:=source venv/bin/activate &&
+OPENSSL_IN_PATH:=export PATH="/usr/local/opt/openssl@1.1/bin:$(PATH)" && 
 SHELL:=/bin/bash
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
@@ -236,7 +237,15 @@ download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
-config: venv new_password download hydra-login-consent-node ida/ida2-csc-service
+certs:
+	@$(OPENSSL_IN_PATH) cd etsin      && make certs
+	@$(OPENSSL_IN_PATH) cd qvain      && make certs
+	@$(OPENSSL_IN_PATH) cd fairdata   && make certs
+	@$(OPENSSL_IN_PATH) cd ida        && make certs
+	@$(OPENSSL_IN_PATH) cd simplesaml && make certs
+	@$(OPENSSL_IN_PATH) cd metax      && make certs
+
+config: venv new_password download hydra-login-consent-node ida/ida2-csc-service certs
 	@echo "=== Configuring workspace ======================"
 	@echo -n " - Downloading dependencies.."
 	@test -f node-v12.13.1-linux-x64.tar.xz || curl -O https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz > /dev/null
