@@ -51,6 +51,13 @@ volumes:
   user-metax:
     name: fairdata-dev-docker_user-metax
     external: true
+  idadata:
+    name: fairdata-dev-docker_idadata
+    external: true
+  code-ida:
+    name: fairdata-dev-docker_code-ida
+    external: true
+
 
 services:
   fairdata-dev-container:
@@ -71,6 +78,8 @@ services:
       - code-etsin:/workspace/code/etsin
       - code-fairdata:/workspace/code/fairdata
       - code-simplesaml:/workspace/code/simplesaml
+      - code-ida:/workspace/code/ida
       - metaxdata:/workspace/data/metax
       - qvaindata:/workspace/data/qvain
+      - idadata:/workspace/data/ida
       - elasticsearchdata:/workspace/data/elasticsearch

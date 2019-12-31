@@ -56,7 +56,7 @@ resolve-info:
 	@echo "  127.0.0.1   fairdata.csc.local"
 	@echo "  127.0.0.1   simplesaml.csc.local"
 	@echo "  127.0.0.1   download.csc.local"
-	@echo	
+	@echo
 
 resolve-etsin:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=etsin.csc.local resolve_to
