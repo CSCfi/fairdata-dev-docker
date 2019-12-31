@@ -10,13 +10,14 @@
 #########################################################
 
 VENV:=source venv/bin/activate &&
+DOCKER_COMPOSE:=$(VENV) COMPOSE_HTTP_TIMEOUT=2000 docker-compose
 OPENSSL_IN_PATH:=export PATH="/usr/local/opt/openssl@1.1/bin:$(PATH)" && 
 SHELL:=/bin/bash
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
 ETSIN_BRANCH:=test
-HYDRA:=docker-compose exec auth.csc.local hydra
+HYDRA:=$(DOCKER_COMPOSE) exec auth.csc.local hydra
 RESOLVE_HOST:=localhost
 RESOLVE_IP:=127.0.0.1
 
@@ -82,7 +83,7 @@ resolve-download:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=download.csc.local resolve_to
 
 qvain-dev: new_password resolve test-docker venv config
-	@$(VENV) docker-compose up --build -d
+	@$(DOCKER_COMPOSE) up --build -d
 	@echo
 	@echo Setup and test authentication service..
 	@make auth-wait
@@ -108,20 +109,20 @@ qvain-dev: new_password resolve test-docker venv config
 	@echo
 
 qvain-shell: venv
-	@$(VENV) docker-compose exec qvain.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec qvain.csc.local /bin/bash
 
 qvain-tests:
 	@test -d qvain-js || git clone https://github.com/CSCfi/qvain-js -b next
 	@cd qvain-js && git pull && make check
 
 simplesaml-dev: new_password resolve test-docker venv config
-	@$(VENV) docker-compose up --build -d simplesaml.csc.local
+	@$(DOCKER_COMPOSE) up --build -d simplesaml.csc.local
 
 simplesaml-shell: venv
-	@$(VENV) docker-compose exec simplesaml.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec simplesaml.csc.local /bin/bash
 
 etsin-dev: new_password resolve test-docker venv config
-	@$(VENV) docker-compose up --build -d etsin.csc.local
+	@$(DOCKER_COMPOSE) up --build -d etsin.csc.local
 	@echo
 	@echo Setup and test authentication service..
 	@make simplesaml-wait
@@ -147,13 +148,13 @@ etsin-dev: new_password resolve test-docker venv config
 	@echo
 
 etsin-shell: venv
-	@$(VENV) docker-compose exec etsin.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec etsin.csc.local /bin/bash
 
 etsin-logs: venv
-	@$(VENV) docker-compose exec etsin.csc.local /usr/bin/journalctl -fu fairdata-etsin-init -n 1000
+	@$(DOCKER_COMPOSE) exec etsin.csc.local /usr/bin/journalctl -fu fairdata-etsin-init -n 1000
 
 download-shell: venv
-	@$(VENV) docker-compose exec download.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec download.csc.local /bin/bash
 
 test-docker:
 	@echo "Testing connection to Docker.."
@@ -161,7 +162,7 @@ test-docker:
 	@echo "..ok"
 
 metax-dev: resolve config test-docker venv
-	@$(VENV) docker-compose up --build -d metax.csc.local
+	@$(DOCKER_COMPOSE) up --build -d metax.csc.local
 	@echo
 	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
 	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
@@ -176,13 +177,13 @@ metax-dev: resolve config test-docker venv
 	@echo
 
 metax-shell: venv
-	@$(VENV) docker-compose exec metax.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec metax.csc.local /bin/bash
 
 metax-wait:
 	@./.wait-until-up "metax web interface" metax.csc.local 1443 https://metax.csc.local:1443/rest/datasets
 
 ida-shell: venv
-	@$(VENV) docker-compose exec ida.csc.local /bin/bash
+	@$(DOCKER_COMPOSE) exec ida.csc.local /bin/bash
 
 qvain-wait:
 	@./.wait-until-up "qvain web interface" qvain.csc.local 3443 https://qvain.csc.local:3443/api/auth/login
@@ -214,13 +215,13 @@ fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qva
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
 down: venv hydra-login-consent-node download
-	$(VENV) docker-compose down -v
+	$(DOCKER_COMPOSE) down -v
 
 logs: venv
-	$(VENV) docker-compose logs -f
+	$(DOCKER_COMPOSE) logs -f
 
 clean: venv
-	$(VENV) docker-compose down --rmi all -v
+	$(DOCKER_COMPOSE) down --rmi all -v
 	rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
 
 hydra-login-consent-node:
@@ -290,7 +291,7 @@ config: venv new_password download hydra-login-consent-node ida/ida2-csc-service
 
 	@echo " - Using following docker configuration:"
 	@echo "---8<---"
-	@$(VENV) docker-compose config
+	@$(DOCKER_COMPOSE) config
 	@echo "---8<---"
 	@echo "=== Workspace has been configured =============="
 	@echo
@@ -304,7 +305,7 @@ clean-code:
 
 fairdata-dev: venv resolve config
 	@echo "=== Building containers ========================"
-	@$(VENV) docker-compose up --build -d fairdata.csc.local
+	@$(DOCKER_COMPOSE) up --build -d fairdata.csc.local
 	@echo "=== Containers have been built! ================"
 	@echo
 	@echo "=== Booting and waiting for services ==========="

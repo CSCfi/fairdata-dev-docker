@@ -46,12 +46,14 @@ ADD 0001-Patched-for-fairdata-dev-docker.patch /code/0001-Patched-for-fairdata-d
 ADD 0001-Fixed-shell-commands-and-env.patch /code/0001-Fixed-shell-commands-and-env.patch
 ADD 0001-Fixed-dataserver-address.patch /code/0001-Fixed-dataserver-address.patch
 ADD 0001-Do-not-install-git.patch /code/0001-Do-not-install-git.patch
+ADD 0001-Disable-ssl-generation.patch /code/0001-Disable-ssl-generation.patch
 
 RUN pushd /code/etsin-ops/ && git am ../0001-Patched-for-fairdata-dev-docker.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Do-not-check-source-code-in-provisioning.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Fixed-shell-commands-and-env.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Fixed-dataserver-address.patch
-RUN pushd /code/etsin-ops && git am ../0001-Do-not-install-git.patch
+RUN pushd /code/etsin-ops/ && git am ../0001-Do-not-install-git.patch
+RUN pushd /code/etsin-ops/ && git am ../0001-Disable-ssl-generation.patch
 RUN pushd /code/etsin_finder && git am ../0001-patch-finder-search.patch
 
 # Create new user and ensure user permissions
@@ -89,6 +91,12 @@ RUN echo LC_IDENTIFICATION="fi_FI.UTF8" >> /etc/environment
 RUN systemctl enable fairdata-etsin-init
 
 RUN echo "etsin-user ALL=NOPASSWD: ALL" >> /etc/sudoers
+
+# Place SSL certs
+ADD redirect-server.crt /etc/nginx/ssl_certs/redirect-nginx-selfsigned.crt
+ADD redirect-server.pem /etc/nginx/ssl_certs/redirect-nginx-selfsigned.key
+ADD server.crt /etc/nginx/ssl_certs/nginx-selfsigned.crt
+ADD server.pem /etc/nginx/ssl_certs/nginx-selfsigned.key
 
 # Enable the provision on container boot
 RUN touch /code/first-time-init
