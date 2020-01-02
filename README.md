@@ -13,6 +13,7 @@ You should have following in /etc/hosts:
   127.0.0.1   fairdata.csc.local
   127.0.0.1   simplesaml.csc.local
   127.0.0.1   download.csc.local
+  127.0.0.1   ida.csc.local
 ```
 
 ## Usage
@@ -21,9 +22,9 @@ make
 ```
 
 ### Fairdata dev
-This target will boot all the services (excluding IDA, for now).
+This target will boot all the services.
 ```
-make fairdata-dev
+make dev
 ```
 
 ### Metax dev
