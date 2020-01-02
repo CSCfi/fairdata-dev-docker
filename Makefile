@@ -226,7 +226,7 @@ clean: venv
 	rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
 
 hydra-login-consent-node:
-	git clone https://github.com/jppiiroinen/hydra-login-consent-node.git
+	git clone https://github.com/CSCfi/fairdata-hydra-login-consent-node.git hydra-login-consent-node
 
 prune:
 	@./.docker-clean-up
