@@ -1,6 +1,84 @@
-<h1>FAIRDATA DEV MACHINE</h1>
+<html>
+    <head>
+        <style>
+            body {
+                background-color: #002b36;
+                font-family: monospace;
+                font-size: 1em;
+                color: #eee8d5;
+                padding: 4em;
+            }
+            h1, h2, h3 {
+                padding-top: 1em;
+                padding-bottom: 1em;
+            }
+            a {
+                padding: 1em;
+                color: #eee8d5;
+                background-color: #657b83;
+                border: 1px solid #073642;
+                border-radius: 0.5em;
+                text-decoration: none;
+                margin: 1em;
+            }
+            a:hover {
+                color: #fdf6e3;
+                background-color: #93a1a1;
+                border: 1px solid #657b83;
+            }
 
-<a target="_blank" href="https://metax.csc.local:1443">Metax</a>
-<a target="_blank" href="https://qvain.csc.local:3443">Qvain</a>
-<a target="_blank" href="https://etsin.csc.local:4443">Etsin</a>
-<a target="_blank" href="https://ida.csc.local:5443">Ida</a>
+            .service {
+                display: block;
+                padding: 1em;
+                margin: 1em;
+            }
+
+            .block {
+                display: block;
+                padding: 1em;
+                margin: 1em;
+            }
+        </style>
+    </head>
+<body>
+    <h1>Fairdata local development</h1>
+
+    <h2>Developer instances</h2>
+
+    <div class="block">
+        <a target="_blank" href="https://fairdata.csc.local">fairdata-dev-docker (this)</a>
+        <a target="_blank" href="https://metax.csc.local">Metax</a>
+        <a target="_blank" href="https://qvain.csc.local">Qvain</a>
+        <a target="_blank" href="https://etsin.csc.local">Etsin / Qvain Light</a>
+        <a target="_blank" href="https://ida.csc.local">Ida</a>
+    </div>
+
+    <h2>Source code</h2>
+
+    <div class="service">
+        <b>Qvain</b>
+        <a target="_blank" href="https://github.com/CSCfi/qvain-js">qvain-js</a>
+        <a target="_blank" href="https://github.com/CSCfi/qvain-api">qvain-api</a>
+        <a target="_blank" href="https://github.com/CSCfi/qvain-ops">qvain-ops</a>
+    </div>
+
+    <div class="service">
+        <b>Etsin / Qvain Light</b>
+        <a target="_blank" href="https://github.com/CSCfi/etsin-finder">etsin-finder</a>
+        <a target="_blank" href="https://github.com/CSCfi/etsin-finder-search">etsin-finder-search</a>
+        <a target="_blank" href="https://github.com/CSCfi/etsin-ops">etsin-ops</a>
+    </div>
+
+    <div class="service">
+        <b>Ida</b>
+        <a target="_blank" href="https://github.com/CSCfi/ida2">ida2</a>
+        <a target="_blank" href="https://github.com/CSCfi/ida2-command-line-tools">ida2-command-line-tools</a>
+    </div>
+
+    <div class="service">
+        <b>fairdata-dev-docker</b>
+        <a target="_blank" href="https://github.com/CSCfi/fairdata-dev-docker">fairdata-dev-docker</a>
+    </div>
+
+</body>
+</html>
