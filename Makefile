@@ -11,7 +11,7 @@
 
 VENV:=source venv/bin/activate &&
 DOCKER_COMPOSE:=$(VENV) COMPOSE_HTTP_TIMEOUT=2000 docker-compose
-OPENSSL_IN_PATH:=export PATH="/usr/local/opt/openssl@1.1/bin:$(PATH)" && 
+OPENSSL_IN_PATH:=export PATH="$(PWD)/openssl-1.1.1/build/bin:$(PATH)" &&
 SHELL:=/bin/bash
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
@@ -222,6 +222,7 @@ logs: venv
 
 clean: venv
 	$(DOCKER_COMPOSE) down --rmi all -v
+	cd openssl-1.1.1 && make clean
 	rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
 
 hydra-login-consent-node:
@@ -238,7 +239,7 @@ download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
-certs:
+certs: openssl-1.1.1/build/bin
 	@$(OPENSSL_IN_PATH) cd etsin      && make certs
 	@$(OPENSSL_IN_PATH) cd qvain      && make certs
 	@$(OPENSSL_IN_PATH) cd fairdata   && make certs
@@ -316,3 +317,5 @@ fairdata-dev: venv resolve config
 	@echo " It has the developer related links."
 	@echo
 
+openssl-1.1.1/build/bin:
+	openssl version|grep 1.1|wc -l || (cd openssl-1.1.1 && make)
