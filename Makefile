@@ -13,6 +13,12 @@ VENV:=source venv/bin/activate &&
 DOCKER_COMPOSE:=$(VENV) COMPOSE_HTTP_TIMEOUT=2000 docker-compose
 OPENSSL_IN_PATH:=export LD_LIBRARY_PATH="$(PWD)/openssl-1.1.1/build/lib:$(LD_LIBRARY_PATH)" && export OPENSSL_CONF="$(PWD)/openssl-1.1.1/build/openssl.cnf" && export PATH="$(PWD)/openssl-1.1.1/build/bin:$(PATH)" &&
 SHELL:=/bin/bash
+OS:=$(shell uname)
+ifeq ($(OS),Darwin)
+DISTRO:=$(shell sw_vers | grep ProductVersion | awk '{split($$0,a,"\t"); print a[2]}' | xargs)
+else
+DISTRO:=$(shell cat /etc/os-release | grep -o ^ID=\".*\" | grep -o "\".*\"" | tr -d '"')
+endif
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
@@ -254,7 +260,22 @@ certs: openssl-1.1.1/build/bin
 	@$(OPENSSL_IN_PATH) cd simplesaml && make certs
 	@$(OPENSSL_IN_PATH) cd metax      && make certs
 
-config: venv new_password download hydra-login-consent-node ida/ida2-csc-service certs
+check-open-command:
+ifeq ($(OS),Darwin)
+else
+	@which xdg-open || make install-xdg
+endif
+
+install-xdg:
+	@echo "xdg-open is not available. You will need to install it."
+ifeq ($(DISTRO),centos)
+	sudo yum install -y xdg-utils
+endif
+ifeq ($(DISTRO),ubuntu)
+	sudo apt install -y xdg-utils
+endif
+
+config: venv check-open-command new_password download hydra-login-consent-node ida/ida2-csc-service certs
 	@echo "=== Configuring workspace ======================"
 	@echo -n " - Downloading dependencies.."
 	@test -f node-v12.13.1-linux-x64.tar.xz || curl -O https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz > /dev/null
@@ -301,10 +322,19 @@ config: venv new_password download hydra-login-consent-node ida/ida2-csc-service
 	@echo "---8<---"
 	@$(DOCKER_COMPOSE) config
 	@echo "---8<---"
+
+	@echo " - Your environment:"
+	@echo "   OS=$(OS)"
+	@echo "   DISTRO=$(DISTRO)"
 	@echo "=== Workspace has been configured =============="
 	@echo
 
 dev: down clean-code fairdata-dev
+ifeq ($(OS),Darwin)
+	@open https://fairdata.csc.local
+else
+	@xdg-open https://fairdata.csc.local
+endif
 
 rebuild: down prune dev
 
