@@ -37,6 +37,9 @@ RUN cd /code && git clone https://github.com/CSCfi/metax-api.git -b ${metax_bran
 ADD metax-api.diff /metax/metax-api.diff
 RUN cd /code/metax-api && patch -p1 < /metax/metax-api.diff
 
+ADD 0001-rems-for-local.patch /metax/0001-rems-for-local.patch
+RUN cd /code/metax-api/src/metax_api && git am /metax/0001-rems-for-local.patch
+
 RUN ln -s /code/metax-api /usr/local/metax
 RUN mkdir -p /metax
 RUN ln -s /code/metax-api /metax/metax-api

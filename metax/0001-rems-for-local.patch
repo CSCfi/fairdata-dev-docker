@@ -1,0 +1,25 @@
+From 08f0f5723a119fb51647f1443e305e70e2957806 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 9 Jan 2020 12:57:24 +0000
+Subject: [PATCH] Patched REMS for local dev
+
+---
+ src/metax_api/settings.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/metax_api/settings.py b/src/metax_api/settings.py
+index d63376c..4e84349 100755
+--- a/src/metax_api/settings.py
++++ b/src/metax_api/settings.py
+@@ -580,7 +580,7 @@ else:
+         'URL': app_config_dict['DATACITE']['URL'],
+     }
+ 
+-if executing_in_travis:
++if True:
+     REMS = {
+         'ENABLED': True,
+         'API_KEY': 'key',
+-- 
+2.16.6
+
