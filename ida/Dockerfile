@@ -69,8 +69,8 @@ RUN touch /code/first-time-init
 
 RUN git clone https://github.com/CSCfi/ida2.git ida
 
-ADD patches/0001-allow-remote-rabbitmq.patch /code/0001-allow-remote-rabbitmq.patch
-RUN cd /code/ida && git am ../0001-allow-remote-rabbitmq.patch
+#ADD patches/0001-allow-remote-rabbitmq.patch /code/0001-allow-remote-rabbitmq.patch
+#RUN cd /code/ida && git am ../0001-allow-remote-rabbitmq.patch
 RUN git clone https://github.com/CSCfi/ida2-command-line-tools.git ida-tools
 ADD ida2-csc-service /code/ida-service
 
