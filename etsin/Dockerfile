@@ -47,6 +47,7 @@ ADD 0001-Fixed-shell-commands-and-env.patch /code/0001-Fixed-shell-commands-and-
 ADD 0001-Fixed-dataserver-address.patch /code/0001-Fixed-dataserver-address.patch
 ADD 0001-Do-not-install-git.patch /code/0001-Do-not-install-git.patch
 ADD 0001-Disable-ssl-generation.patch /code/0001-Disable-ssl-generation.patch
+ADD 0001-patch-app-config.patch /code/0001-patch-app-config.patch
 
 RUN pushd /code/etsin-ops/ && git am ../0001-Patched-for-fairdata-dev-docker.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Do-not-check-source-code-in-provisioning.patch
@@ -54,6 +55,7 @@ RUN pushd /code/etsin-ops/ && git am ../0001-Fixed-shell-commands-and-env.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Fixed-dataserver-address.patch
 RUN pushd /code/etsin-ops/ && git am ../0001-Do-not-install-git.patch
 #RUN pushd /code/etsin-ops/ && git am ../0001-Disable-ssl-generation.patch
+RUN pushd /code/etsin-ops/ && git am ../0001-patch-app-config.patch
 RUN pushd /code/etsin_finder && git am ../0001-patch-finder-search.patch
 
 # Create new user and ensure user permissions

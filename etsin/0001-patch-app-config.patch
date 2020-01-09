@@ -1,0 +1,25 @@
+From 4a53a59f0f9204856704b18c9422ab44d34c4589 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 9 Jan 2020 14:05:54 +0000
+Subject: [PATCH] Patched default values to app_config
+
+---
+ ansible/roles/app_config/templates/app_config | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/ansible/roles/app_config/templates/app_config b/ansible/roles/app_config/templates/app_config
+index 245c015..155c581 100644
+--- a/ansible/roles/app_config/templates/app_config
++++ b/ansible/roles/app_config/templates/app_config
+@@ -66,6 +66,6 @@ MEMCACHED:
+ 
+ # Variables related to Fairdata Rems API
+ FD_REMS:
+-  ENABLED: {{ fd_rems.enabled }}
+-  HOST: {{ fd_rems.host }}
+-  API_KEY: {{ fd_rems.api_key }}
++  ENABLED: {{ fd_rems.enabled | default(false) }}
++  HOST: {{ fd_rems.host | default(omit) }}
++  API_KEY: {{ fd_rems.api_key | default(omit) }}
+-- 
+2.16.6
