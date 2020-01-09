@@ -34,7 +34,7 @@ new_password:
 	$(eval NEW_PASSWORD:=$(shell cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1) )
 
 resolve_to:
-ifneq ("$(shell ping -q -c 1 -t 1 $(RESOLVE_HOST) | grep -o \(.*\) | tr -d '(' | tr -d ')' | grep -o '[0-9\.]*')","$(RESOLVE_IP)")
+ifneq ("$(shell ping -q -c 1 -t 1 $(RESOLVE_HOST) | grep -o \(.*\) | tr -d '(' | tr -d ')' | grep -o '[0-9\.]*' | head -n 1)","$(RESOLVE_IP)")
 	@echo
 	@echo "You need to add following line to /etc/hosts on your machine:"
 	@echo "  $(RESOLVE_IP)   $(RESOLVE_HOST)"
