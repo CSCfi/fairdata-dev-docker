@@ -322,4 +322,8 @@ fairdata-dev: venv resolve config
 	@echo
 
 openssl-1.1.1/build/bin:
-	@openssl version|grep 1.1|wc -l || (cd openssl-1.1.1 && make)
+ifneq ("$(shell openssl version | grep 1.1| wc -l)","1")
+	@cd openssl-1.1.1 && make
+else
+	@echo "OpenSSL 1.1 series is available.
+endif
