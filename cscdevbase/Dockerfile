@@ -28,7 +28,7 @@ ARG EXTRA_PACKAGES=""
 
 ################################################
 # These are the default internal variables
-ARG BASE_PACKAGES="nmap-ncat epel-release open-vm-tools openssh-server passwd rsyslog sudo cronie openssl git curl unzip which '@Development tools' htop curl vim tcl tree zile nano screen net-tools"
+ARG BASE_PACKAGES="nmap-ncat epel-release open-vm-tools openssh-server passwd rsyslog sudo cronie openssl git curl unzip which htop curl vim tcl tree zile nano screen net-tools"
 ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
 
 ################################################
@@ -45,7 +45,7 @@ RUN yum -y -q reinstall glibc-common
 # required packages which we need for running and compiling
 # our software
 RUN yum install ${YUM_ARGS} ${BASE_PACKAGES} ${EXTRA_PACKAGES}
-
+RUN yum groupinstall ${YUM_ARGS} "Development tools"
 RUN yum install ${YUM_ARGS} golang postgresql gcc gcc-c++ patch
 RUN yum remove ${YUM_ARGS} git*
 RUN yum install ${YUM_ARGS} https://centos7.iuscommunity.org/ius-release.rpm
