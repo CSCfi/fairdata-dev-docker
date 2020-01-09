@@ -1,0 +1,26 @@
+From 4758921c822bb95dde5d4e44a142302c330ecafc Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 9 Jan 2020 12:57:56 +0200
+Subject: [PATCH] Patch download to use the base image.
+
+---
+ Dockerfile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Dockerfile b/Dockerfile
+index 0ba2b48..2937062 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -12,7 +12,8 @@
+ 
+ ################################################
+ # We base our container on centos with systemd.
+-FROM centos/systemd
++FROM cscdevbase:1
++SHELL [ "/bin/bash", "-c" ]
+ ENV SYSTEMD_IGNORE_CHROOT=1
+ 
+ ################################################
+-- 
+2.21.0 (Apple Git-122.2)
+

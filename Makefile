@@ -241,6 +241,9 @@ venv:
 
 download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
+	@test -d download && (cd download && git am ../0001-Patch-download-to-use-the-base-image.patch) > /dev/null
+	@test -d download && (cd download && git am ../0001-Do-not-install-git-client.patch) > /dev/null
+	@test -d download && (cd download && git am ../0001-Commentout-unwanted-steps.patch) > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
 certs: openssl-1.1.1/build/bin

@@ -1,0 +1,69 @@
+From 1f1fa35942af2ebf0d8192c828fa0b90acc323c6 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 9 Jan 2020 13:09:08 +0200
+Subject: [PATCH] Commentout unwanted steps.
+
+---
+ Dockerfile | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/Dockerfile b/Dockerfile
+index 1d429b2..33b5f95 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -42,7 +42,7 @@ RUN yum update ${YUM_ARGS}
+ 
+ # then we will reinstall this package to get the proper
+ # localizations as we will need to have that finnish support
+-RUN yum -y -q reinstall glibc-common
++# RUN yum -y -q reinstall glibc-common
+ 
+ # now that everything is ok, we will install those actual
+ # required packages which we need for running and compiling
+@@ -70,31 +70,31 @@ RUN yum clean all
+ 
+ ################################################
+ # Lets enable the services which we want to be there enabled
+-RUN systemctl enable sshd
+-RUN systemctl enable dbus
+-RUN systemctl enable rsyslog
+-RUN systemctl enable crond
++# RUN systemctl enable sshd
++# RUN systemctl enable dbus
++# RUN systemctl enable rsyslog
++# RUN systemctl enable crond
+ 
+ ################################################
+ # Configure the locale to Finnish
+ # as we have special characters in file names etc.
+-ENV LANG fi_FI.UTF-8
+-ENV LC_ALL fi_FI.UTF-8
+-RUN localedef -c -f UTF-8 -i fi_FI fi_FI.UTF-8
++#ENV LANG fi_FI.UTF-8
++#ENV LC_ALL fi_FI.UTF-8
++#RUN localedef -c -f UTF-8 -i fi_FI fi_FI.UTF-8
+ 
+ ################################################
+ # Configure git client
+-RUN git config --global user.name ${GIT_USER}
+-RUN git config --global user.email ${GIT_EMAIL}
++# RUN git config --global user.name ${GIT_USER}
++# RUN git config --global user.email ${GIT_EMAIL}
+ 
+ ################################################
+ # Configure SSH server
+-RUN mkdir /var/run/sshd
+-RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
++# RUN mkdir /var/run/sshd
++# RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
+ 
+ ################################################
+ # Configure SSH authentication
+-ADD ${ssh_key} /root/.ssh/authorized_keys
++# ADD ${ssh_key} /root/.ssh/authorized_keys
+ 
+ ################################################
+ # Install Fairdata download service
+-- 
+2.21.0 (Apple Git-122.2)
+

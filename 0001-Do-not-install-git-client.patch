@@ -1,0 +1,25 @@
+From 6143dbf04c69d2bc0b3c84c5e38fb818cb6661e1 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Thu, 9 Jan 2020 13:02:09 +0200
+Subject: [PATCH] Do not install git client.
+
+---
+ Dockerfile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Dockerfile b/Dockerfile
+index 2937062..1d429b2 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -29,7 +29,7 @@ ARG EXTRA_PACKAGES=""
+ 
+ ################################################
+ # These are the default internal variables
+-ARG BASE_PACKAGES="epel-release open-vm-tools openssh-server passwd rsyslog sudo cronie openssl git curl java-11 java-11-devel java-11-openjdk java-11-openjdk-devel unzip which maven"
++ARG BASE_PACKAGES="epel-release open-vm-tools openssh-server passwd rsyslog sudo cronie openssl curl java-11 java-11-devel java-11-openjdk java-11-openjdk-devel unzip which maven"
+ ARG YUM_ARGS="--setopt=tsflags=nodocs -y"
+ ARG GIT_USER="download-service"
+ ARG GIT_EMAIL="noreply@csc.fi"
+-- 
+2.21.0 (Apple Git-122.2)
+
