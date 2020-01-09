@@ -11,7 +11,7 @@
 
 VENV:=source venv/bin/activate &&
 DOCKER_COMPOSE:=$(VENV) COMPOSE_HTTP_TIMEOUT=2000 docker-compose
-OPENSSL_IN_PATH:=export OPENSSL_CONF="$(PWD)/openssl-1.1.1/build/openssl.cnf" && export PATH="$(PWD)/openssl-1.1.1/build/bin:$(PATH)" &&
+OPENSSL_IN_PATH:=export LD_LIBRARY_PATH="$(PWD)/openssl-1.1.1/lib:$(LD_LIBRARY_PATH)" && export OPENSSL_CONF="$(PWD)/openssl-1.1.1/build/openssl.cnf" && export PATH="$(PWD)/openssl-1.1.1/build/bin:$(PATH)" &&
 SHELL:=/bin/bash
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
