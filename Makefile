@@ -27,7 +27,7 @@ up:	all
 
 update: update-hydra-login-consent-node
 
-resolve: resolve-info resolve-simplesaml resolve-download resolve-fairdata resolve-etsin resolve-metax resolve-qvain resolve-auth resolve-auth-consent
+resolve: resolve-info resolve-simplesaml resolve-download resolve-fairdata resolve-etsin resolve-metax resolve-qvain resolve-auth resolve-auth-consent resolve-ida
 	@echo
 
 new_password:
@@ -56,6 +56,7 @@ resolve-info:
 	@echo "  127.0.0.1   fairdata.csc.local"
 	@echo "  127.0.0.1   simplesaml.csc.local"
 	@echo "  127.0.0.1   download.csc.local"
+	@echo "  127.0.0.1   ida.csc.local"
 	@echo
 
 resolve-etsin:
@@ -81,6 +82,9 @@ resolve-simplesaml:
 
 resolve-download:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=download.csc.local resolve_to
+
+resolve-ida:
+	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=ida.csc.local resolve_to
 
 qvain-dev: new_password resolve test-docker venv config
 	@$(DOCKER_COMPOSE) up --build -d
