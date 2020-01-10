@@ -365,6 +365,15 @@ endif
 
 docker: brew
 	@which docker > /dev/null || make docker-install
+	@make docker-start
+	@make docker-info
+
+docker-start:
+ifeq ($(OS),Darwin)
+	@open /Applications/Docker.app
+else
+	@sudo systemctl start docker
+endif
 
 docker-install:
 ifeq ($(OS),Darwin)
@@ -377,9 +386,13 @@ ifeq ($(DISTRO),centos)
 	@sudo usermod -G docker $(WHOAMI)
 	@newgrp docker
 	@newgrp $(WHOAMI_USER_GROUP)
-	@sudo systemctl start docker
 endif
 endif
+
+docker-info:
+	@echo == Docker info ==
+	@docker info
+	@echo == end of Docker info ==
 
 brew:
 ifeq ($(OS),Darwin)
