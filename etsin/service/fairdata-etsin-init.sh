@@ -13,17 +13,17 @@ set -e
 set -a; source /etc/environment; set +a
 export PATH=/code/node-v12.13.1-linux-x64/bin:${PATH}
 
-if [[ -f /code/first-time-init ]]; then
+if [[ ! -f /usr/local/etsin/search_scripts/reindex_by_recreating_index.sh ]]; then
     pushd /code/etsin-ops/ansible
         ansible-galaxy install --roles-path=roles -r requirements.yml
         ansible-playbook -i inventories/local_development provision_dataservers.yml
         ansible-playbook -i inventories/local_development provision_webservers.yml
     popd
     systemctl disable fairdata-etsin-init
-    rm -f /code/first-time-init
 fi
 
 su - etsin-user -c "/usr/local/etsin/search_scripts/reindex_by_recreating_index.sh"
+rm -f /code/first-time-init
 
 systemctl enable memcached
 systemctl enable nginx

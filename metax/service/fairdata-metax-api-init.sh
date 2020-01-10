@@ -17,7 +17,7 @@ export LANG=fi_FI.UTF8
 export 
 
 
-if [[ -f /code/first-time-init ]]; then
+if [[ ! -d /usr/local/metax/refdata_indexer ]]; then
 
     echo "Installing local redis.."
     pushd /metax/ansible

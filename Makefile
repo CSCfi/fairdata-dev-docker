@@ -154,7 +154,7 @@ auth-wait:
 	@./.wait-until-up "auth admin interface" auth.csc.local 4445
 	@echo -n " - creating endpoint for qvain.."
 	-@$(HYDRA) clients delete fuubarclientid --endpoint http://127.0.0.1:4445 > /dev/null
-	-@$(HYDRA) clients create --endpoint http://127.0.0.1:4445 --id fuubarclientid --secret changeme --grant-types authorization_code,refresh_token --response-types code,id_token --scope openid,offline,profile,email --callbacks https://qvain.csc.local:3443/api/auth/cb --post-logout-callbacks https://qvain.csc.local:3443/ > /dev/null
+	-@$(HYDRA) clients create --endpoint http://127.0.0.1:4445 --id fuubarclientid --secret changeme --grant-types authorization_code,refresh_token --response-types code,id_token --scope openid,offline,profile,email --callbacks https://qvain.csc.local/api/auth/cb --post-logout-callbacks https://qvain.csc.local/ > /dev/null
 	@echo "..created!"
 
 download-wait:

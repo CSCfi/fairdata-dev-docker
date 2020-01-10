@@ -354,7 +354,7 @@ OAI:
   BASE_URL: https://metax.csc.local/oai/
   BATCH_SIZE: 25
   REPOSITORY_NAME: Metax (local_development)
-  ETSIN_URL_TEMPLATE: https://etsin-test.fairdata.fi/dataset/%s
+  ETSIN_URL_TEMPLATE: https://etsin.csc.local/dataset/%s
   ADMIN_EMAIL: servicedesk@csc.fi
   SET_MAPPINGS:
     datasets:
@@ -368,6 +368,6 @@ OAI:
 DATACITE:
     USERNAME: <REPLACE_WITH_DATACITE_USERNAME>
     PASSWORD: <REPLACE_WITH_DATACITE_PASSWORD>
-    ETSIN_URL_TEMPLATE: https://etsin-test.fairdata.fi/dataset/%s
+    ETSIN_URL_TEMPLATE: https://etsin.csc.local/dataset/%s
     PREFIX: 10.5072
     URL: 127.0.0.1
