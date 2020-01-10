@@ -369,11 +369,16 @@ docker: brew
 	@make docker-info
 
 docker-start:
+	@echo "Starting docker.."
 ifeq ($(OS),Darwin)
-	@open /Applications/Docker.app
+	@open --background /Applications/Docker.app
 else
 	@sudo systemctl start docker
 endif
+	@echo "..done!"
+	@echo -n "Waiting until docker is ready.."
+	@while ! docker info > /dev/null 2>&1; do echo -n "."; sleep 1; done
+	@echo "..ready!"
 
 docker-install:
 ifeq ($(OS),Darwin)

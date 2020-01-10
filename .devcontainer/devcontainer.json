@@ -14,9 +14,12 @@
 	"workspaceFolder": "/workspace",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "fairdata-dev-container",
-	"settings": { 
+	"settings": {
+		"python.pythonPath": "../venv/bin/python",
 		"terminal.integrated.shell.linux": "/bin/bash"
 	},
-	"extensions": [],
+	"extensions": [
+		"ms-python.python"
+	],
 	"postCreateCommand": "mkdir -p /root/.ssh && cp -r /root/.ssh-localhost/* /root/.ssh && chmod 700 /root/.ssh && chmod 600 /root/.ssh/*"	
 }
