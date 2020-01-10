@@ -275,7 +275,7 @@ ifeq ($(DISTRO),ubuntu)
 	sudo apt install -y xdg-utils
 endif
 
-config: venv check-open-command new_password download hydra-login-consent-node ida/ida2-csc-service certs
+config: docker venv check-open-command new_password download hydra-login-consent-node ida/ida2-csc-service certs
 	@echo "=== Configuring workspace ======================"
 	@echo -n " - Downloading dependencies.."
 	@test -f node-v12.13.1-linux-x64.tar.xz || curl -O https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz > /dev/null
@@ -359,4 +359,28 @@ ifneq ("$(shell openssl version | grep 1.1| wc -l)","1")
 	@cd openssl-1.1.1 && make
 else
 	@echo "OpenSSL 1.1 series is available.
+endif
+
+docker: brew
+	@which docker > /dev/null || make docker-install
+
+docker-install:
+ifeq ($(OS),Darwin)
+	@brew cask install docker
+else
+ifeq ($(DISTRO),centos)
+	@sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+	@sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	@sudo yum install -y docker-ce docker-ce-cli containerd.io
+endif
+endif
+
+brew:
+ifeq ($(OS),Darwin)
+	@which brew > /dev/null || make brew-install
+endif
+
+brew-install:
+ifeq ($(OS),Darwin)
+	@/usr/bin/ruby -e "$(shell curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 endif
