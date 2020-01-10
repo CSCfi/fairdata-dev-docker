@@ -408,3 +408,11 @@ brew-install:
 ifeq ($(OS),Darwin)
 	@/usr/bin/ruby -e "$(shell curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 endif
+
+code: venv
+ifeq ($(OS),centos)
+	@$(VENV) code .
+endif
+ifeq ($(OS),Darwin)
+	@$(VENV) open /Applications/Visual\ Studio\ Code.app
+endif
