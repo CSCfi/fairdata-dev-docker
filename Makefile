@@ -377,6 +377,7 @@ ifeq ($(DISTRO),centos)
 	@sudo usermod -G docker $(WHOAMI)
 	@newgrp docker
 	@newgrp $(WHOAMI_USER_GROUP)
+	@sudo systemctl start docker
 endif
 endif
 
