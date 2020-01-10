@@ -26,6 +26,8 @@ ETSIN_BRANCH:=test
 HYDRA:=$(DOCKER_COMPOSE) exec auth.csc.local hydra
 RESOLVE_HOST:=localhost
 RESOLVE_IP:=127.0.0.1
+WHOAMI=$(shell whoami)
+WHOAMI_USER_GROUP=$(shell id -g)
 
 all: dev
 
@@ -372,6 +374,9 @@ ifeq ($(DISTRO),centos)
 	@sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 	@sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 	@sudo yum install -y docker-ce docker-ce-cli containerd.io
+	@sudo usermod -G docker $(WHOAMI)
+	@newgrp docker
+	@newgrp $(WHOAMI_USER_GROUP)
 endif
 endif
 
