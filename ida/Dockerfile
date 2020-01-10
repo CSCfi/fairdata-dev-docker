@@ -66,11 +66,11 @@ RUN chown -R apache:apache /mnt/rabbitmq_monitoring
 
 RUN touch /code/first-time-init
 
-RUN git clone https://github.com/CSCfi/ida2.git -b ${ida2_branch} ida
+RUN git clone https://github.com/CSCfi/ida2.git -b ${ida2_branch} ida
 
 #ADD patches/0001-allow-remote-rabbitmq.patch /code/0001-allow-remote-rabbitmq.patch
 #RUN cd /code/ida && git am ../0001-allow-remote-rabbitmq.patch
-RUN git clone https://github.com/CSCfi/ida2-command-line-tools.git -b ${ida2_command_line_tools_branch} ida-tools
+RUN git clone https://github.com/CSCfi/ida2-command-line-tools.git -b ${ida2_command_line_tools_branch} ida-tools
 ADD ida2-csc-service /code/ida-service
 
 #RUN mkdir -p /var/ida /var/ida-tools /var/ida-service
