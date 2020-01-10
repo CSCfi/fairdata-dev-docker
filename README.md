@@ -21,49 +21,31 @@ You should have following in /etc/hosts:
 make
 ```
 
-### Fairdata dev
-This target will boot all the services.
-```
-make dev
-```
-
-### Metax dev
-```
-make metax-dev
-```
+### Shell access
+#### Metax
 If you need to access shell you can use
 ```
 make metax-shell
 ```
 
-### Qvain dev
-```
-make qvain-dev
-```
-If you need to access shell you can use
+#### Qvain
 ```
 make qvain-shell
 ```
 
-### Etsin dev
-```
-make etsin-dev
-```
-If you need to access shell you can use
+#### Etsin
 ```
 make etsin-shell
 ```
 
+#### Ida
+```
+make ida-shell
+```
 
 ### Checkout a specific branch
-#### Qvain development
 ```
-make METAX_BRANCH="test" QVAIN_JS_BRANCH="master" QVAIN_API_BRANCH="master" qvain-dev
-```
-
-#### Metax development
-```
-make METAX_BRANCH="test" metax-dev
+make IDA2_BRANCH="master" IDA2_COMMAND_LINE_TOOLS_BRANCH="master" ETSIN_FINDER_BRANCH="test" ETSIN_FINDER_SEARCH_BRANCH="test" METAX_BRANCH="test" QVAIN_JS_BRANCH="master" QVAIN_API_BRANCH="master"
 ```
 
 ## Setting up Code Editor for development

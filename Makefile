@@ -22,7 +22,10 @@ endif
 QVAIN_API_BRANCH:=next
 QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
-ETSIN_BRANCH:=test
+ETSIN_FINDER_BRANCH:=test
+ETSIN_FINDER_SEARCH_BRANCH:=test
+IDA2_COMMAND_LINE_TOOLS_BRANCH:=master
+IDA2_BRANCH:=master
 HYDRA:=$(DOCKER_COMPOSE) exec auth.csc.local hydra
 RESOLVE_HOST:=localhost
 RESOLVE_IP:=127.0.0.1
@@ -94,32 +97,6 @@ resolve-download:
 resolve-ida:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=ida.csc.local resolve_to
 
-qvain-dev: new_password resolve test-docker venv config
-	@$(DOCKER_COMPOSE) up --build -d
-	@echo
-	@echo Setup and test authentication service..
-	@make auth-wait
-	@echo "..auth is setup!"
-	@echo
-	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
-	@echo "Qvain: ssh root@localhost -p2222 -i fairdata-dev-docker-sshkey"
-	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
-	@echo "Download: ssh root@localhost -p2224 -i fairdata-dev-docker-sshkey"
-	@echo
-	@echo "You can also use make commands to directly get into the shell without ssh."
-	@echo "Qvain: make qvain-shell"
-	@echo "Metax: make metax-shell"
-	@echo "Download: make download-shell"
-	@echo
-	@make qvain-wait
-	@echo
-	@echo "You should be able to open Qvain with your web browser:"
-	@echo " http://127.0.0.1"
-	@echo " https://127.0.0.1"
-	@echo
-	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
-	@echo
-
 qvain-shell: venv
 	@$(DOCKER_COMPOSE) exec qvain.csc.local /bin/bash
 
@@ -132,32 +109,6 @@ simplesaml-dev: new_password resolve test-docker venv config
 
 simplesaml-shell: venv
 	@$(DOCKER_COMPOSE) exec simplesaml.csc.local /bin/bash
-
-etsin-dev: new_password resolve test-docker venv config
-	@$(DOCKER_COMPOSE) up --build -d etsin.csc.local
-	@echo
-	@echo Setup and test authentication service..
-	@make simplesaml-wait
-	@echo "..auth is setup!"
-	@echo
-	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
-	@echo "Etsin: ssh root@localhost -p2225 -i fairdata-dev-docker-sshkey"
-	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
-	@echo "Download: ssh root@localhost -p2224 -i fairdata-dev-docker-sshkey"
-	@echo
-	@echo "You can also use make commands to directly get into the shell without ssh."
-	@echo "Etsin: make etsin-shell"
-	@echo "Metax: make metax-shell"
-	@echo "Download: make download-shell"
-	@echo
-	@make etsin-wait
-	@echo
-	@echo "You should be able to open Etsin with your web browser:"
-	@echo " http://127.0.0.1"
-	@echo " https://127.0.0.1"
-	@echo
-	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub"
-	@echo
 
 etsin-shell: venv
 	@$(DOCKER_COMPOSE) exec etsin.csc.local /bin/bash
@@ -172,21 +123,6 @@ test-docker:
 	@echo "Testing connection to Docker.."
 	@docker info > /dev/null
 	@echo "..ok"
-
-metax-dev: resolve config test-docker venv
-	@$(DOCKER_COMPOSE) up --build -d metax.csc.local
-	@echo
-	@echo "After the containers are built, you can login with root:$(shell cat .root-password):"
-	@echo "Metax: ssh root@localhost -p2223 -i fairdata-dev-docker-sshkey"
-	@echo
-	@make metax-wait
-	@echo
-	@echo "You should be able to open Metax API with your web browser:"
-	@echo " http://127.0.0.1"
-	@echo " https://127.0.0.1"
-	@echo
-	@echo "There should be also public key authentication setup using fairdata-dev-docker-sshkey.pub."
-	@echo
 
 metax-shell: venv
 	@$(DOCKER_COMPOSE) exec metax.csc.local /bin/bash
@@ -249,9 +185,9 @@ venv:
 
 download:
 	@test -d download || git clone https://github.com/CSCfi/fairdata-restricted-download.git download > /dev/null
-	@test -d download && (cd download && git am ../0001-Patch-download-to-use-the-base-image.patch) > /dev/null
-	@test -d download && (cd download && git am ../0001-Do-not-install-git-client.patch) > /dev/null
-	@test -d download && (cd download && git am ../0001-Commentout-unwanted-steps.patch) > /dev/null
+	@test -d download && (cd download && git am ../download-patches/0001-Patch-download-to-use-the-base-image.patch) > /dev/null
+	@test -d download && (cd download && git am ../download-patches/0001-Do-not-install-git-client.patch) > /dev/null
+	@test -d download && (cd download && git am ../download-patches/0001-Commentout-unwanted-steps.patch) > /dev/null
 	@test -d download && (cd download && git pull) > /dev/null
 
 certs: openssl-1.1.1/build/bin
@@ -299,8 +235,11 @@ config: docker venv check-open-command new_password download hydra-login-consent
 	@echo "QVAIN_PASSWORD=$(shell cat .root-password)" >> .env
 	@echo "METAX_PASSWORD=$(shell cat .root-password)" >> .env
 	@echo "METAX_BRANCH=$(METAX_BRANCH)" >> .env
-	@echo "ETSIN_BRANCH=$(ETSIN_BRANCH)" >> .env
+	@echo "ETSIN_FINDER_SEARCH_BRANCH=$(ETSIN_FINDER_SEARCH_BRANCH)" >> .env
+	@echo "ETSIN_FINDER_BRANCH=$(ETSIN_FINDER_BRANCH)" >> .env
 	@echo "ETSIN_PASSWORD=$(shell cat .root-password)" >> .env
+	@echo "IDA2_COMMAND_LINE_TOOLS_BRANCH=$(IDA2_COMMAND_LINE_TOOLS_BRANCH)" >> .env
+	@echo "IDA2_BRANCH=$(IDA2_BRANCH)" >> .env
 	@echo "SSH_KEY=id_rsa.pub" >> .env
 	@echo "METAX_PORT_HTTP=1080" >> .env
 	@echo "METAX_PORT_HTTPS=1443" >> .env

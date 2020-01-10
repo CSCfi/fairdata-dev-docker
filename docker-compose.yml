@@ -276,6 +276,9 @@ services:
     hostname: ida
     build:
       context: ./ida
+      args:
+        ida2_branch: "${IDA2_BRANCH:-master}"
+        ida2_command_line_tools_branch: "${IDA2_COMMAND_LINE_TOOLS_BRANCH:-master}"
     privileged: true
     depends_on:
       - cscdevbase
