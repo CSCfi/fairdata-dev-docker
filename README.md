@@ -45,7 +45,7 @@ make ida-shell
 
 ### Checkout a specific branch
 ```
-make IDA2_BRANCH="master" IDA2_COMMAND_LINE_TOOLS_BRANCH="master" ETSIN_FINDER_BRANCH="test" ETSIN_FINDER_SEARCH_BRANCH="test" METAX_BRANCH="test" QVAIN_JS_BRANCH="master" QVAIN_API_BRANCH="master"
+make ETSIN_OPS_BRANCH="master" IDA2_BRANCH="master" IDA2_COMMAND_LINE_TOOLS_BRANCH="master" ETSIN_FINDER_BRANCH="test" ETSIN_FINDER_SEARCH_BRANCH="test" METAX_BRANCH="test" QVAIN_JS_BRANCH="master" QVAIN_API_BRANCH="master"
 ```
 
 ## Setting up Code Editor for development

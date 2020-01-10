@@ -24,6 +24,7 @@ QVAIN_JS_BRANCH:=next
 METAX_BRANCH:=test
 ETSIN_FINDER_BRANCH:=test
 ETSIN_FINDER_SEARCH_BRANCH:=test
+ETSIN_OPS_BRANCH:=master
 IDA2_COMMAND_LINE_TOOLS_BRANCH:=master
 IDA2_BRANCH:=master
 HYDRA:=$(DOCKER_COMPOSE) exec auth.csc.local hydra
@@ -237,6 +238,7 @@ config: docker venv check-open-command new_password download hydra-login-consent
 	@echo "METAX_BRANCH=$(METAX_BRANCH)" >> .env
 	@echo "ETSIN_FINDER_SEARCH_BRANCH=$(ETSIN_FINDER_SEARCH_BRANCH)" >> .env
 	@echo "ETSIN_FINDER_BRANCH=$(ETSIN_FINDER_BRANCH)" >> .env
+	@echo "ETSIN_OPS_BRANCH=$(ETSIN_OPS_BRANCH)" >> .env
 	@echo "ETSIN_PASSWORD=$(shell cat .root-password)" >> .env
 	@echo "IDA2_COMMAND_LINE_TOOLS_BRANCH=$(IDA2_COMMAND_LINE_TOOLS_BRANCH)" >> .env
 	@echo "IDA2_BRANCH=$(IDA2_BRANCH)" >> .env
