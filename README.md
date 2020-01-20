@@ -2,19 +2,6 @@
 
 This repository contains containers which will help with development tasks. This has setup for local development environments for Etsin, Qvain, Qvain Light, Download and Metax. It will also host a simple developer homepage for local development in ports 80 and 443.
 
-## Preconditions
-```
-You should have following in /etc/hosts:
-  127.0.0.1   metax.csc.local
-  127.0.0.1   auth-consent.csc.local
-  127.0.0.1   auth.csc.local
-  127.0.0.1   qvain.csc.local
-  127.0.0.1   etsin.csc.local
-  127.0.0.1   fairdata.csc.local
-  127.0.0.1   simplesaml.csc.local
-  127.0.0.1   download.csc.local
-  127.0.0.1   ida.csc.local
-```
 
 ## Usage
 ```
