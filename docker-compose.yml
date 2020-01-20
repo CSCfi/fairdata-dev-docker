@@ -17,6 +17,8 @@ volumes:
   code-simplesaml:
   code-fairdata:
   code-ida:
+  matomo-db:
+  matomo:
 
 services:
   simplesaml.csc.local:
@@ -227,6 +229,7 @@ services:
       - qvain-postgres.csc.local
       - auth.csc.local
       - auth-consent.csc.local
+      - matomo.csc.local
     ports:
       - "${QVAIN_PORT_HTTPS:-443}:443"
       - "${QVAIN_PORT_HTTP:-80}:80"
@@ -257,6 +260,7 @@ services:
       - simplesaml.csc.local
       - metax.csc.local
       - download.csc.local
+      - matomo.csc.local
     ports:
       - "${ETSIN_PORT_HTTPS:-443}:443"
       - "${ETSIN_PORT_HTTP:-80}:80"
@@ -322,3 +326,29 @@ services:
         read_only: true
       - code-fairdata:/code
 
+  matomo-db.csc.local:
+    image: mariadb
+    command: --max-allowed-packet=64MB
+    restart: always
+    volumes:
+      - matomo-db:/var/lib/mysql
+    environment:
+      MYSQL_PASSWORD: changeme
+      MYSQL_ROOT_PASSWORD: changeme
+      MYSQL_DATABASE: matomo_database
+      MYSQL_USER: matomo
+
+  matomo.csc.local:
+    image: matomo
+    depends_on:
+      - matomo-db.csc.local
+    volumes:
+      - matomo:/var/www/html
+    environment:
+      VIRTUAL_HOST:
+      MATOMO_DATABASE_HOST: matomo-db.csc.local
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: matomo
+      MATOMO_DATABASE_PASSWORD: changeme
+      MATOMO_DATABASE_DBNAME: matomo_database

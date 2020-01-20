@@ -39,7 +39,7 @@ up:	all
 
 update: update-hydra-login-consent-node
 
-resolve: resolve-info resolve-simplesaml resolve-download resolve-fairdata resolve-etsin resolve-metax resolve-qvain resolve-auth resolve-auth-consent resolve-ida
+resolve: resolve-info resolve-matomo resolve-simplesaml resolve-download resolve-fairdata resolve-etsin resolve-metax resolve-qvain resolve-auth resolve-auth-consent resolve-ida
 	@echo
 
 new_password:
@@ -69,7 +69,11 @@ resolve-info:
 	@echo "  127.0.0.1   simplesaml.csc.local"
 	@echo "  127.0.0.1   download.csc.local"
 	@echo "  127.0.0.1   ida.csc.local"
+	@echo "  127.0.0.1   matomo.csc.local"
 	@echo
+
+resolve-matomo:
+	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=matomo.csc.local resolve_to
 
 resolve-etsin:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=etsin.csc.local resolve_to

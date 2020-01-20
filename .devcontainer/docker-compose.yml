@@ -57,7 +57,13 @@ volumes:
   code-ida:
     name: fairdata-dev-docker_code-ida
     external: true
-
+  matomo:
+    name: fairdata-dev-docker_matomo
+    external: true
+  matomo-db:
+    name: fairdata-dev-docker_matomo-db
+    external: true
+  
 
 services:
   fairdata-dev-container:
@@ -83,3 +89,5 @@ services:
       - qvaindata:/workspace/data/qvain
       - idadata:/workspace/data/ida
       - elasticsearchdata:/workspace/data/elasticsearch
+      - matomo:/workspace/data/matomo
+      - matomo-db:/workspace/data/matomo-db

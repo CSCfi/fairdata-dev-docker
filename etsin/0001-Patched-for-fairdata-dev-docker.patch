@@ -1,26 +1,26 @@
-From 78ac9f95a1367eac8c5c88e2a89165938a750a37 Mon Sep 17 00:00:00 2001
+From b0832fcb2187b1925e60cd24594fce63e259559a Mon Sep 17 00:00:00 2001
 From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
-Date: Fri, 13 Dec 2019 12:19:15 +0200
-Subject: [PATCH] Patched for fairdata-dev-docker
+Date: Mon, 20 Jan 2020 13:12:43 +0200
+Subject: [PATCH] fairdata-dev-docker patch
 
 ---
- ansible/group_vars/secrets                    | 48 +++++++++++++++++
+ ansible/group_vars/secrets                    | 48 +++++++++++++++++++
  ansible/install_requirements.sh               |  2 +-
- .../local_development/group_vars/all          | 54 ++++++++++++++++++-
+ .../local_development/group_vars/all          |  4 +-
  ansible/provision_dataservers.yml             |  2 +-
  ansible/roles/gunicorn/tasks/main.yml         |  6 +--
  ansible/roles/memcached/tasks/main.yml        |  2 +-
  ansible/roles/nginx/tasks/main.yml            |  2 +-
- ansible/roles/os-base/tasks/main.yml          | 20 +++----
- .../roles/provision_search_app/tasks/main.yml | 24 ++++-----
- .../roles/provision_web_app/tasks/main.yml    | 16 +++---
+ ansible/roles/os-base/tasks/main.yml          | 20 ++++----
+ .../roles/provision_search_app/tasks/main.yml | 24 +++++-----
+ .../roles/provision_web_app/tasks/main.yml    | 16 +++----
  ansible/roles/python/tasks/main.yml           |  7 +++
- 11 files changed, 142 insertions(+), 41 deletions(-)
+ 11 files changed, 91 insertions(+), 42 deletions(-)
  create mode 100644 ansible/group_vars/secrets
 
 diff --git a/ansible/group_vars/secrets b/ansible/group_vars/secrets
 new file mode 100644
-index 0000000..0a9ed97
+index 0000000..a320b8b
 --- /dev/null
 +++ b/ansible/group_vars/secrets
 @@ -0,0 +1,48 @@
@@ -80,10 +80,10 @@ index c6062fe..be650d9 100644
 -ansible-galaxy -r requirements.yml install --roles-path=roles
 +# ansible-galaxy -r requirements.yml install --roles-path=roles
 diff --git a/ansible/inventories/local_development/group_vars/all b/ansible/inventories/local_development/group_vars/all
-index 49ea27a..2cbd7e4 100644
+index 9750e1e..dc08ddf 100644
 --- a/ansible/inventories/local_development/group_vars/all
 +++ b/ansible/inventories/local_development/group_vars/all
-@@ -45,6 +45,58 @@ elasticsearch_instance:
+@@ -46,12 +46,12 @@ elasticsearch_instance:
  
  elasticsearch:
    hosts:
@@ -91,58 +91,13 @@ index 49ea27a..2cbd7e4 100644
 +    - elasticsearch.csc.local
    port: 9200
    use_ssl: False
-+
-+
-+metax_rabbitmq_hosts:
+ 
+ metax_rabbitmq_hosts:
+-  - 127.0.0.1
 +  - rabbitmq.csc.local
-+
-+metax_rabbitmq:
-+  hosts: "{{ metax_rabbitmq_hosts }}"
-+  vhost: metax
-+  exchange: datasets
-+  user: metax-user
-+  password: changeme
-+  port: 5672
-+
-+metax_api:
-+  host: metax.csc.local
-+  user: qvain
-+  password: test-qvain
-+  verify_ssl: False
-+
-+metax_qvain_api:
-+  host: metax.csc.local
-+  user: qvain
-+  password: test-qvain
-+  verify_ssl: False
-+
-+download_api:
-+  host: download.csc.local
-+  port: 4433
-+  user: etsin
-+  password: changeme
-+
-+memcached:
-+  host: localhost
-+  port: 11211
-+
-+fd_rems:
-+  host: rems.csc.local
-+  api_key: test
-+
-+
-+saml:
-+  debug: true
-+  strict: false
-+  sp_entity_id: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/metadata.php/default-sp
-+  sp_acs_url: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/saml1-acs.php/default-sp
-+  sp_sls_url: http://127.0.0.1:2080/simplesaml/module.php/saml/sp/saml2-logout.php/default-sp
-+  sp_x509_cert: changeme
-+  sp_private_key: changeme
-+  idp_entity_id: http://127.0.0.1:2080/simplesaml/saml2/idp/metadata.php
-+  idp_sso_url: http://127.0.0.1:2080/simplesaml/saml2/idp/SSOService.php
-+  idp_x509_cert: changeme
-+  idp_sls_url: http://127.0.0.1:2080/simplesaml/saml2/idp/SingleLogoutService.php
+ 
+ metax_rabbitmq:
+   hosts: "{{ metax_rabbitmq_hosts }}"
 diff --git a/ansible/provision_dataservers.yml b/ansible/provision_dataservers.yml
 index 863d3fb..59736e5 100644
 --- a/ansible/provision_dataservers.yml
