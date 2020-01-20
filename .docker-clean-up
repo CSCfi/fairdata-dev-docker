@@ -1,5 +1,5 @@
 #!/bin/bash
-docker network prune -f
+docker rm $(docker ps -a -f name=fairdata-dev-docker_devcontainer -qa)
 
 IMAGES=$(docker images --filter dangling=true -qa)
 if [[ ! -z ${IMAGES} ]]; then
@@ -16,5 +16,8 @@ if [[ ! -z ${IMAGES} ]]; then
     docker rmi -f ${IMAGES}
 fi
 
+docker container prune -f
+docker network prune -f
 docker image prune -f
 docker volume prune -f
+docker system prune -f -a

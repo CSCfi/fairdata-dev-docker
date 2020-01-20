@@ -32,6 +32,7 @@ RESOLVE_HOST:=localhost
 RESOLVE_IP:=127.0.0.1
 WHOAMI=$(shell whoami)
 WHOAMI_USER_GROUP=$(shell id -g)
+IS_DEVELOPER_CONTAINER_RUNNING=$(shell docker ps -a -f name=fairdata-dev-docker_devcontainer -qa)
 
 all: dev
 
@@ -168,15 +169,18 @@ fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qva
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
 down: venv hydra-login-consent-node download
-	-@$(DOCKER_COMPOSE) down -v 2> /dev/null
+	-@$(DOCKER_COMPOSE) down -v --remove-orphans 2> /dev/null
 
 logs: venv
 	@$(DOCKER_COMPOSE) logs -f
 
 clean: venv
-	-@$(DOCKER_COMPOSE) down --rmi all 2>&1 /dev/null
+ifneq ('$(IS_DEVELOPER_CONTAINER_RUNNING)','')
+	@$(VENV) docker rm $(docker ps -a -f name=fairdata-dev-docker_devcontainer -qa) 2>&1 /dev/null
+endif
+	@$(DOCKER_COMPOSE) down --rmi all --remove-orphans -v
 	-@cd openssl-1.1.1 && make clean
-	-@rm -rf hydra-login-consent-node .root-password download node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz
+	-@rm -rf .root-password node-v12.13.1-linux-x64.tar.xz etsin/node-v12.13.1-linux-x64.tar.xz simplesaml/node-v12.13.1-linux-x64.tar.xz 2>&1 /dev/null
 
 hydra-login-consent-node:
 	@git clone https://github.com/CSCfi/fairdata-hydra-login-consent-node.git hydra-login-consent-node
