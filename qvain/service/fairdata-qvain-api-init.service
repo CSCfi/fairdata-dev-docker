@@ -1,9 +1,9 @@
 [Unit]
-Description = Fairdata Etsin - Init
+Description = Fairdata Qvain API init
 
 [Service]
 ExecStartPre = /bin/sleep 10
-ExecStart = /opt/fairdata/etsin/fairdata-etsin-init.sh
+ExecStart = /opt/fairdata/qvain/start-fairdata-qvain-api-init.sh
 EnvironmentFile = /etc/environment
 Restart=on-failure
 RestartSec=30s

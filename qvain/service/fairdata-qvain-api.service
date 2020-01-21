@@ -1,5 +1,7 @@
 [Unit]
 Description = Fairdata Qvain API
+After=fairdata-qvain-api-init.service
+Wants=fairdata-qvain-api-init.service
 
 [Service]
 User = qvain

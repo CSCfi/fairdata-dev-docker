@@ -28,10 +28,6 @@ services:
     domainname: csc.local
     hostname: simplesaml
     privileged: true
-    ports:
-      - "2230:22"
-      - "${SAML_PORT_HTTPS:-2443}:443"
-      - "${SAML_PORT_HTTP:-2080}:80"
     depends_on:
       - cscdevbase
     volumes:
@@ -48,7 +44,7 @@ services:
     domainname: csc.local
     hostname: auth-consent
     ports:
-      - "${AUTH_PUBLIC_PORT:-4444}:4444" # Public port
+      - "${AUTH_PUBLIC_PORT:-443}:4444" # Public port
       - "${AUTH_ADMIN_PORT:-4445}:4445" # Admin port
       - "${AUTH_TOKEN_PORT:-5555}:5555" # Port for hydra token user
     command:
@@ -172,8 +168,6 @@ services:
         root_password: "${ROOT_PASSWORD:-changeme}"
         metax_secrets: service/metax.properties.template
     privileged: true
-    ports:
-      - "${DOWNLOAD_PORT:-8433}:8433"
     volumes:
       - type: bind
         source: /sys/fs/cgroup
@@ -194,9 +188,6 @@ services:
         metax_password: "${METAX_PASSWORD:-changeme}"
         metax_branch: "${METAX_BRANCH:-test}"
     privileged: true
-    ports:
-      - "${METAX_PORT_HTTPS:-1443}:443"
-      - "${METAX_PORT_HTTP:-1080}:80"
     depends_on:
       - cscdevbase
       - rabbitmq.csc.local
@@ -230,9 +221,6 @@ services:
       - auth.csc.local
       - auth-consent.csc.local
       - matomo.csc.local
-    ports:
-      - "${QVAIN_PORT_HTTPS:-443}:443"
-      - "${QVAIN_PORT_HTTP:-80}:80"
     volumes:
       - type: bind
         source: /sys/fs/cgroup
@@ -261,9 +249,7 @@ services:
       - metax.csc.local
       - download.csc.local
       - matomo.csc.local
-    ports:
-      - "${ETSIN_PORT_HTTPS:-443}:443"
-      - "${ETSIN_PORT_HTTP:-80}:80"
+      - ida.csc.local
     cap_add:
       - ALL 
     volumes:
@@ -288,10 +274,6 @@ services:
       - cscdevbase
       - rabbitmq-ida.csc.local
       - metax.csc.local
-    ports:
-      - "${IDA_PORT_ALT_HTTPS:-5433}:4433"
-      - "${IDA_PORT_HTTPS:-443}:443"
-      - "${IDA_PORT_HTTP:-80}:80"
     cap_add:
       - ALL
     volumes:

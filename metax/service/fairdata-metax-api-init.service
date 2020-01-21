@@ -1,7 +1,5 @@
 [Unit]
 Description = Fairdata Metax API - Init
-After=fairdata-metax-api.service
-Wants=fairdata-metax-api.service
 
 [Service]
 ExecStartPre = /bin/sleep 30

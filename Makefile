@@ -133,39 +133,39 @@ test-docker:
 metax-shell: venv
 	@$(DOCKER_COMPOSE) exec metax.csc.local /bin/bash
 
-metax-wait:
-	@./.wait-until-up "metax web interface" metax.csc.local 1443 https://metax.csc.local:1443/rest/datasets
-
 ida-shell: venv
 	@$(DOCKER_COMPOSE) exec ida.csc.local /bin/bash
 
+metax-wait:
+	@./.wait-until-up "metax web interface" metax.csc.local 443 https://metax.csc.local/rest/datasets
+
 qvain-wait:
-	@./.wait-until-up "qvain web interface" qvain.csc.local 3443 https://qvain.csc.local:3443/api/auth/login
+	@./.wait-until-up "qvain web interface" qvain.csc.local 443 https://qvain.csc.local/api/auth/login
 
 etsin-wait:
-	@./.wait-until-up "etsin web interface" etsin.csc.local 4443 https://etsin.csc.local:4443/
+	@./.wait-until-up "etsin web interface" etsin.csc.local 443 https://etsin.csc.local
 
 simplesaml-wait:
-	@./.wait-until-up "simplesaml web interface" simplesaml.csc.local 2080
+	@./.wait-until-up "simplesaml web interface" simplesaml.csc.local 443 https://simplesaml.csc.local
 
 ida-wait:
-	@./.wait-until-up "ida web interface" ida.csc.local 5080
+	@./.wait-until-up "ida web interface" ida.csc.local 443 https://ida.csc.local
+
+matomo-wait:
+	@./.wait-until-up "matomo web interface" matomo.csc.local 443 https://matomo.csc.local
 
 ida/ida2-csc-service:
 	@test -d ida/ida2-csc-service || (cd ida && git clone --depth 1 git@github.com:CSCfi/ida2-csc-service.git)
 
 auth-wait:
-	@./.wait-until-up "auth interface" auth.csc.local 4444
+	@./.wait-until-up "auth interface" auth.csc.local 443 https://auth.csc.local/oauth2/sessions/logout
 	@./.wait-until-up "auth admin interface" auth.csc.local 4445
 	@echo -n " - creating endpoint for qvain.."
 	-@$(HYDRA) clients delete fuubarclientid --endpoint http://127.0.0.1:4445 > /dev/null
 	-@$(HYDRA) clients create --endpoint http://127.0.0.1:4445 --id fuubarclientid --secret changeme --grant-types authorization_code,refresh_token --response-types code,id_token --scope openid,offline,profile,email --callbacks https://qvain.csc.local/api/auth/cb --post-logout-callbacks https://qvain.csc.local/ > /dev/null
 	@echo "..created!"
 
-download-wait:
-	@./.wait-until-up "download interface" download.csc.local 8433
-
-fairdata-wait: simplesaml-wait auth-wait download-wait metax-wait etsin-wait qvain-wait ida-wait
+fairdata-wait: simplesaml-wait auth-wait metax-wait etsin-wait qvain-wait ida-wait matomo-wait
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
 down: venv hydra-login-consent-node download

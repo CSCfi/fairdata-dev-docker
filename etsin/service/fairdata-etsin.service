@@ -1,0 +1,14 @@
+[Unit]
+Description = Fairdata Etsin
+After=fairdata-etsin-init.service
+Wants=fairdata-etsin-init.service
+
+[Service]
+ExecStartPre = /bin/sleep 10
+ExecStart = /opt/fairdata/etsin/fairdata-etsin.sh
+EnvironmentFile = /etc/environment
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy = multi-user.target

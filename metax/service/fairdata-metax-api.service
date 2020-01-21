@@ -1,5 +1,7 @@
 [Unit]
 Description = Fairdata Metax API
+After=fairdata-metax-api-init.service
+Wants=fairdata-metax-api-init.service
 
 [Service]
 User = metax-user

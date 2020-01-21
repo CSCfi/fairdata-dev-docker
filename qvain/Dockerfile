@@ -49,11 +49,16 @@ USER root
 
 # Add service file to start
 RUN mkdir -p /opt/fairdata/qvain
-ADD service/start-fairdata-qvain-api.sh /opt/fairdata/qvain/start-fairdata-qvain-api.sh
-ADD service/fairdata-qvain-api.service /etc/systemd/system/fairdata-qvain-api.service
+ADD service/start-fairdata-qvain-api.sh /opt/fairdata/qvain/
+ADD service/fairdata-qvain-api.service /etc/systemd/system/
 RUN chmod +x /opt/fairdata/qvain/start-fairdata-qvain-api.sh
 
+ADD service/start-fairdata-qvain-api-init.sh /opt/fairdata/qvain/
+ADD service/fairdata-qvain-api-init.service /etc/systemd/system/
+RUN chmod +x /opt/fairdata/qvain/start-fairdata-qvain-api-init.sh
+
 # Start qvain-api on start
+RUN systemctl enable fairdata-qvain-api-init
 RUN systemctl enable fairdata-qvain-api
 
 ################################################

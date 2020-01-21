@@ -58,9 +58,17 @@ RUN chown -R etsin-user:etsin /code
 
 # Setup service
 RUN mkdir -p /opt/fairdata/etsin
-ADD service/fairdata-etsin-init.service /etc/systemd/system/fairdata-etsin-init.service
-ADD service/fairdata-etsin-init.sh /opt/fairdata/etsin/fairdata-etsin-init.sh
+ADD service/fairdata-etsin-init.service /etc/systemd/system/
+ADD service/fairdata-etsin-init.sh /opt/fairdata/etsin/
 RUN chmod +x /opt/fairdata/etsin/fairdata-etsin-init.sh
+
+ADD service/fairdata-etsin.service /etc/systemd/system/
+ADD service/fairdata-etsin.sh /opt/fairdata/etsin/
+RUN chmod +x /opt/fairdata/etsin/fairdata-etsin.sh
+
+# Start etsin on start
+RUN systemctl enable fairdata-etsin-init
+RUN systemctl enable fairdata-etsin
 
 # Setup node 12.x LTS
 ADD node-v12.13.1-linux-x64.tar.xz /code/
@@ -81,9 +89,6 @@ RUN echo LC_ADDRESS="fi_FI.UTF8" >> /etc/environment
 RUN echo LC_TELEPHONE="fi_FI.UTF8" >> /etc/environment
 RUN echo LC_MEASUREMENT="fi_FI.UTF8" >> /etc/environment
 RUN echo LC_IDENTIFICATION="fi_FI.UTF8" >> /etc/environment
-
-# Start etsin-init on start
-RUN systemctl enable fairdata-etsin-init
 
 RUN echo "etsin-user ALL=NOPASSWD: ALL" >> /etc/sudoers
 

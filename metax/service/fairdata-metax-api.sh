@@ -35,6 +35,8 @@ while true; do
     nc 127.0.0.1 9200 -z -w 59 2> /dev/null
     if [[ $? == 0 ]]; then
         break
+    else
+        sleep 1
     fi
 done
 set -e
