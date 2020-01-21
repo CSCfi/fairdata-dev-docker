@@ -125,7 +125,7 @@ RUN ln -s /code/metax-ops/ansible /metax/ansible
 ADD metax-ops.diff /metax/metax-ops.diff
 ADD 0001-Fixed-timeout-for-elasticsearch-for-local-developmen.patch /metax/
 RUN cd /metax && patch -p1 < metax-ops.diff
-RUN cd /metax && git am 0001-Fixed-timeout-for-elasticsearch-for-local-developmen.patch
+RUN cd /code/metax-ops && git am /metax/0001-Fixed-timeout-for-elasticsearch-for-local-developmen.patch
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && pip3 install ansible
 RUN cd /metax/ansible && source /usr/local/metax/pyenv/bin/activate && ansible-playbook provision_cacheservers.yml
 
