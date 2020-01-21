@@ -327,7 +327,11 @@ services:
       - code-fairdata:/code
 
   matomo-db.csc.local:
-    image: mariadb
+    image: fairmatomodb:1
+    build:
+      context: ./matomo/db
+    domainname: csc.local
+    hostname: matomo-db
     command: --max-allowed-packet=64MB
     restart: always
     volumes:

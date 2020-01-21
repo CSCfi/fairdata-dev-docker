@@ -374,4 +374,4 @@ export_matomo_db:
 	$(DOCKER_COMPOSE) exec matomo-db.csc.local /usr/bin/mysqldump -u matomo -pchangeme --skip-extended-insert matomo_database > matomo/matomo.sql
 
 import_matomo_db:
-	$(DOCKER_COMPOSE) exec matomo-db.csc.local /usr/bin/mysql -u matomo -pchangeme matomo_database < matomo/matomo.sql
+	$(DOCKER_COMPOSE) exec matomo-db.csc.local /init-matomo-db.sh
