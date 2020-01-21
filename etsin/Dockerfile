@@ -26,7 +26,7 @@ RUN yum ${YUM_ARGS} update
 RUN yum ${YUM_ARGS} install patch epel-release python-devel libffi-devel openssl-devel
 RUN yum ${YUM_ARGS} install python-pip
 RUN pip install pip --upgrade
-RUN pip install "ansible>=2.4,<2.5"
+RUN pip install "ansible>=2.5"
 
 
 # Checkout code and patch it
