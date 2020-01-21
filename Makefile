@@ -301,6 +301,10 @@ fairdata-dev: venv resolve config
 	@make fairdata-wait
 	@echo "=== Everything is up and running. =============="
 	@echo
+	@echo "=== Import matomo db ==="
+	@make import_matomo_db
+	@echo "=== imported db ==="
+	@echo
 	@echo " Open your browser to https://fairdata.csc.local/"
 	@echo " It has the developer related links."
 	@echo
@@ -365,3 +369,9 @@ endif
 ifeq ($(OS),Darwin)
 	@$(VENV) open /Applications/Visual\ Studio\ Code.app
 endif
+
+export_matomo_db:
+	$(DOCKER_COMPOSE) exec matomo-db.csc.local /usr/bin/mysqldump -u matomo -pchangeme --skip-extended-insert matomo_database > matomo/matomo.sql
+
+import_matomo_db:
+	$(DOCKER_COMPOSE) exec matomo-db.csc.local /usr/bin/mysql -u matomo -pchangeme matomo_database < matomo/matomo.sql

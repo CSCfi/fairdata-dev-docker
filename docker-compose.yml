@@ -339,7 +339,11 @@ services:
       MYSQL_USER: matomo
 
   matomo.csc.local:
-    image: matomo
+    image: fairmatomo:1
+    build:
+      context: ./matomo
+    domainname: csc.local
+    hostname: matomo
     depends_on:
       - matomo-db.csc.local
     volumes:
