@@ -68,6 +68,10 @@ RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh
 RUN source ~/.bashrc && nvm install --lts=dubnium
 RUN git clone https://github.com/CSCfi/qvain-js.git -b ${qvain_js_branch}
 RUN cd qvain-js && git pull
+
+RUN git config --global user.email "you@example.com"
+RUN git config --global user.name "Your Name"
+
 ADD 0001-update-uris.patch /code/
 RUN cd qvain-js && git am /code/0001-update-uris.patch
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm install
