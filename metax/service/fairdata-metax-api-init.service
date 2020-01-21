@@ -4,7 +4,7 @@ After=fairdata-metax-api.service
 Wants=fairdata-metax-api.service
 
 [Service]
-ExecStartPre = /bin/sleep 10
+ExecStartPre = /bin/sleep 30
 ExecStart = /opt/fairdata/metax/fairdata-metax-api-init.sh
 EnvironmentFile = /etc/environment
 Restart=on-failure

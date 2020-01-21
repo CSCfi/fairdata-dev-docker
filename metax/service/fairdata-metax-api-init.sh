@@ -16,6 +16,17 @@ source /usr/local/metax/pyenv/bin/activate
 export LANG=fi_FI.UTF8
 export 
 
+echo "Waiting for elasticsearch is available.."
+# lets wait for awhile to ensure that elasticsearch is up
+set +e
+while true; do
+    nc 127.0.0.1 9200 -z -w 59 2> /dev/null
+    if [[ $? == 0 ]]; then
+        break
+    fi
+done
+set -e
+echo "..elasticsearch has been started."
 
 if [[ ! -d /usr/local/metax/refdata_indexer ]]; then
 
@@ -45,7 +56,7 @@ if [[ ! -d /usr/local/metax/refdata_indexer ]]; then
     echo "..ensured."
     echo
     echo "Remove the first-time-init file.."
-    rm -f /code/first-time-init
+    rm -f /first-time-init
     echo "..removed."
     echo
 

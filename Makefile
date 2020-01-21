@@ -375,3 +375,9 @@ export_matomo_db:
 
 import_matomo_db:
 	$(DOCKER_COMPOSE) exec matomo-db.csc.local /init-matomo-db.sh
+
+stats:
+	docker container stats
+
+top:
+	$(DOCKER_COMPOSE) top

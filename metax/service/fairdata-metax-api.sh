@@ -28,6 +28,18 @@ cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
 screen -d -m ssh -o 'StrictHostKeyChecking=no' -L9200:elasticsearch.csc.local:9200 127.0.0.1 -N
 echo "..ssh ok."
 echo
+echo "Waiting for elasticsearch is available.."
+# lets wait for awhile to ensure that elasticsearch is up
+set +e
+while true; do
+    nc 127.0.0.1 9200 -z -w 59 2> /dev/null
+    if [[ $? == 0 ]]; then
+        break
+    fi
+done
+set -e
+echo "..elasticsearch has been started."
+echo
 echo "Wait until metax preparations are done.."
 while [ -f /first-time-init ]; do
   sleep 1
