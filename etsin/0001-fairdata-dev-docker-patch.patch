@@ -1,21 +1,32 @@
-From b0832fcb2187b1925e60cd24594fce63e259559a Mon Sep 17 00:00:00 2001
+From 0e3f515653350dce950616e29fd28fa155d02aec Mon Sep 17 00:00:00 2001
 From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
 Date: Mon, 20 Jan 2020 13:12:43 +0200
 Subject: [PATCH] fairdata-dev-docker patch
 
+Do not check source code in provisioning
+
+Fixed shell commands and env.
+
+Fixed dataserver address.
+
+Do not install git.
+
+Disable pip update
 ---
  ansible/group_vars/secrets                    | 48 +++++++++++++++++++
  ansible/install_requirements.sh               |  2 +-
- .../local_development/group_vars/all          |  4 +-
- ansible/provision_dataservers.yml             |  2 +-
+ .../local_development/group_vars/all          |  6 +--
+ ansible/provision_dataservers.yml             |  4 +-
+ ansible/provision_webservers.yml              |  2 +
+ ansible/roles/frontend/tasks/main.yml         |  3 ++
  ansible/roles/gunicorn/tasks/main.yml         |  6 +--
  ansible/roles/memcached/tasks/main.yml        |  2 +-
  ansible/roles/nginx/tasks/main.yml            |  2 +-
- ansible/roles/os-base/tasks/main.yml          | 20 ++++----
- .../roles/provision_search_app/tasks/main.yml | 24 +++++-----
- .../roles/provision_web_app/tasks/main.yml    | 16 +++----
+ ansible/roles/os-base/tasks/main.yml          | 34 ++++++-------
+ .../roles/provision_search_app/tasks/main.yml | 32 ++++++-------
+ .../roles/provision_web_app/tasks/main.yml    | 34 ++++++-------
  ansible/roles/python/tasks/main.yml           |  7 +++
- 11 files changed, 91 insertions(+), 42 deletions(-)
+ 13 files changed, 119 insertions(+), 63 deletions(-)
  create mode 100644 ansible/group_vars/secrets
 
 diff --git a/ansible/group_vars/secrets b/ansible/group_vars/secrets
@@ -80,9 +91,18 @@ index c6062fe..be650d9 100644
 -ansible-galaxy -r requirements.yml install --roles-path=roles
 +# ansible-galaxy -r requirements.yml install --roles-path=roles
 diff --git a/ansible/inventories/local_development/group_vars/all b/ansible/inventories/local_development/group_vars/all
-index 9750e1e..dc08ddf 100644
+index 9750e1e..fcc42e7 100644
 --- a/ansible/inventories/local_development/group_vars/all
 +++ b/ansible/inventories/local_development/group_vars/all
+@@ -2,7 +2,7 @@ web_app_base_path: "/etsin/{{ web_app_project_name }}"
+ search_app_base_path: "/etsin/{{ search_app_project_name }}"
+ 
+ webserver_1_internal_ip: 127.0.0.1
+-dataserver_1_internal_ip: 127.0.0.1
++dataserver_1_internal_ip: elasticsearch.csc.local
+ 
+ deployment_environment_id: local_development
+ ssl_certificate_name: nginx-selfsigned.crt
 @@ -46,12 +46,12 @@ elasticsearch_instance:
  
  elasticsearch:
@@ -99,16 +119,61 @@ index 9750e1e..dc08ddf 100644
  metax_rabbitmq:
    hosts: "{{ metax_rabbitmq_hosts }}"
 diff --git a/ansible/provision_dataservers.yml b/ansible/provision_dataservers.yml
-index 863d3fb..59736e5 100644
+index 863d3fb..e0c4351 100644
 --- a/ansible/provision_dataservers.yml
 +++ b/ansible/provision_dataservers.yml
-@@ -5,5 +5,5 @@
+@@ -2,8 +2,10 @@
+ 
+ - hosts: dataservers
+   become: yes
++  environment:
++    PATH: /code/node-v12.13.1-linux-x64/bin:{{ ansible_env.PATH }}
    roles:
      - os-base
      - python
 -    - elasticsearch
 +#    - elasticsearch
      - provision_search_app
+diff --git a/ansible/provision_webservers.yml b/ansible/provision_webservers.yml
+index 6ec46f8..8e6f68e 100644
+--- a/ansible/provision_webservers.yml
++++ b/ansible/provision_webservers.yml
+@@ -2,6 +2,8 @@
+ 
+ - hosts: webservers
+   become: yes
++  environment:
++    PATH: /code/node-v12.13.1-linux-x64/bin:{{ ansible_env.PATH }}
+   roles:
+     - { role: os-base, when: "deployment_environment_id != 'local_development'" }
+     - { role: python, when: "deployment_environment_id != 'local_development'" }
+diff --git a/ansible/roles/frontend/tasks/main.yml b/ansible/roles/frontend/tasks/main.yml
+index 05a5395..585d36a 100644
+--- a/ansible/roles/frontend/tasks/main.yml
++++ b/ansible/roles/frontend/tasks/main.yml
+@@ -4,6 +4,7 @@
+     shell: npm prune
+     become_user: "{{ app_user }}"
+     args:
++      executable: /bin/bash
+       chdir: "{{ web_app_frontend_path }}"
+ 
+   - block:
+@@ -18,12 +19,14 @@
+         shell: npm install
+         become_user: "{{ app_user }}"
+         args:
++          executable: /bin/bash
+           chdir: "{{ web_app_frontend_path }}"
+ 
+       - name: Run frontend dev build for local development environment
+         shell: npm run dev-build
+         become_user: "{{ app_user }}"
+         args:
++          executable: /bin/bash
+           chdir: "{{ web_app_frontend_path }}"
+ 
+     when: deployment_environment_id == 'local_development'
 diff --git a/ansible/roles/gunicorn/tasks/main.yml b/ansible/roles/gunicorn/tasks/main.yml
 index 06ad206..29627d2 100644
 --- a/ansible/roles/gunicorn/tasks/main.yml
@@ -146,12 +211,34 @@ index 2c3fbab..0d7c924 100644
 -  service: name=nginx enabled=yes state=restarted
 +  shell: systemctl enable nginx
 diff --git a/ansible/roles/os-base/tasks/main.yml b/ansible/roles/os-base/tasks/main.yml
-index 6639b3e..f36818a 100644
+index 6639b3e..5b12119 100644
 --- a/ansible/roles/os-base/tasks/main.yml
 +++ b/ansible/roles/os-base/tasks/main.yml
-@@ -45,9 +45,9 @@
-       - pip
-       - setuptools
+@@ -18,7 +18,7 @@
+       - gcc
+       - gcc-c++
+       - python-devel
+-      - git
++#      - git
+       - curl
+       - vim
+       - zip
+@@ -38,16 +38,16 @@
+   yum: name=python-pip state=latest
+   when: deployment_environment_id != 'local_development'
+ 
+-- name: Install latest python pip and setuptools using pip
+-  pip:
+-    state: latest
+-    name:
+-      - pip
+-      - setuptools
++#- name: Install latest python pip and setuptools using pip
++#  pip:
++#    state: latest
++#    name:
++#      - pip
++#      - setuptools
  
 -- name: Install pur for updating pip dependencies using pip
 -  pip: name=pur state=latest
@@ -192,12 +279,21 @@ index 6639b3e..f36818a 100644
  - include_role: name=users
  
 diff --git a/ansible/roles/provision_search_app/tasks/main.yml b/ansible/roles/provision_search_app/tasks/main.yml
-index f0927e0..caa4f98 100644
+index f0927e0..6670f9a 100644
 --- a/ansible/roles/provision_search_app/tasks/main.yml
 +++ b/ansible/roles/provision_search_app/tasks/main.yml
-@@ -13,10 +13,10 @@
-     become_user: "{{ app_user }}"
-     ignore_errors: yes
+@@ -8,15 +8,15 @@
+   - name: Create folder {{ search_app_base_path }} for the search app
+     file: path={{ search_app_base_path }} state=directory owner={{ app_user }} group=etsin mode=0755
+ 
+-  - name: Clone project repo from branch {{ search_app_github_repo_branch }} to {{ search_app_base_path }}
+-    git: repo={{ search_app_github_repo }} dest={{ search_app_base_path }} version={{ search_app_github_repo_branch }}
+-    become_user: "{{ app_user }}"
+-    ignore_errors: yes
++#  - name: Clone project repo from branch {{ search_app_github_repo_branch }} to {{ search_app_base_path }}
++#    git: repo={{ search_app_github_repo }} dest={{ search_app_base_path }} version={{ search_app_github_repo_branch }}
++#    become_user: "{{ app_user }}"
++#    ignore_errors: yes
  
 -  - name: Update search app python package requirements to their latest versions
 -    shell: pur --force --requirement {{ search_app_base_path }}/requirements.txt
@@ -234,12 +330,21 @@ index f0927e0..caa4f98 100644
    - debug:
        msg: "{{ deployment_environment_id }} search app environment successfully set up."
 diff --git a/ansible/roles/provision_web_app/tasks/main.yml b/ansible/roles/provision_web_app/tasks/main.yml
-index a363cae..20ad523 100644
+index a363cae..75dec79 100644
 --- a/ansible/roles/provision_web_app/tasks/main.yml
 +++ b/ansible/roles/provision_web_app/tasks/main.yml
-@@ -15,19 +15,19 @@
-     become_user: "{{ app_user }}"
-     ignore_errors: yes
+@@ -10,24 +10,24 @@
+   - name: Create folder {{ web_app_base_path }} for the web app
+     file: path={{ web_app_base_path }} state=directory owner={{ app_user }} group=etsin mode=0755
+ 
+-  - name: Clone project repo from branch {{ web_app_github_repo_branch }} to {{ web_app_base_path }}
+-    git: repo={{ web_app_github_repo }} dest={{ web_app_base_path }} version={{ web_app_github_repo_branch }}
+-    become_user: "{{ app_user }}"
+-    ignore_errors: yes
++#  - name: Clone project repo from branch {{ web_app_github_repo_branch }} to {{ web_app_base_path }}
++#    git: repo={{ web_app_github_repo }} dest={{ web_app_base_path }} version={{ web_app_github_repo_branch }}
++#    become_user: "{{ app_user }}"
++#    ignore_errors: yes
  
 -  - name: Update app python package requirements to their latest versions
 -    shell: pur --force --requirement {{ web_app_base_path }}/requirements.txt
@@ -265,6 +370,24 @@ index a363cae..20ad523 100644
  
    - name: Install web app python test package requirements
      pip: requirements={{ web_app_base_path }}/test_requirements.txt virtualenv={{ python_virtualenv_path }}
+@@ -36,12 +36,12 @@
+ 
+   - include_role: name=gunicorn
+ 
+-  - name: Install NPM
+-    yum: name=npm state=latest
++#  - name: Install NPM
++#    yum: name=npm state=latest
+ 
+-  - name: Install npm-check-updates
+-    npm: name=npm-check-updates state=latest global=yes
+-    when: deployment_environment_id == 'local_development'
++#  - name: Install npm-check-updates
++#    npm: name=npm-check-updates state=latest global=yes
++#    when: deployment_environment_id == 'local_development'
+ 
+   - include_role: name=frontend
+ 
 diff --git a/ansible/roles/python/tasks/main.yml b/ansible/roles/python/tasks/main.yml
 index cefcec7..87ad941 100644
 --- a/ansible/roles/python/tasks/main.yml
