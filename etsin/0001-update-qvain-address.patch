@@ -1,0 +1,39 @@
+From f65349be965f2aae2e450e31b3e125ad60c44c2d Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Tue, 21 Jan 2020 14:47:13 +0000
+Subject: [PATCH] Update qvain address to development instance.
+
+---
+ etsin_finder/frontend/js/components/general/navigation/mobileNavi.jsx | 2 +-
+ etsin_finder/frontend/js/components/general/navigation/settings.jsx   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/etsin_finder/frontend/js/components/general/navigation/mobileNavi.jsx b/etsin_finder/frontend/js/components/general/navigation/mobileNavi.jsx
+index 6aa32aa2..7657e30a 100644
+--- a/etsin_finder/frontend/js/components/general/navigation/mobileNavi.jsx
++++ b/etsin_finder/frontend/js/components/general/navigation/mobileNavi.jsx
+@@ -56,7 +56,7 @@ export default class MobileNavi extends React.Component {
+                 <Link
+                   width="100%"
+                   margin="0em 0em 0.6em 0em"
+-                  href="https://qvain.fairdata.fi"
++                  href="https://qvain.csc.local"
+                   rel="noopener noreferrer"
+                   target="_blank"
+                 >
+diff --git a/etsin_finder/frontend/js/components/general/navigation/settings.jsx b/etsin_finder/frontend/js/components/general/navigation/settings.jsx
+index 870c9cb1..5df5d57a 100644
+--- a/etsin_finder/frontend/js/components/general/navigation/settings.jsx
++++ b/etsin_finder/frontend/js/components/general/navigation/settings.jsx
+@@ -41,7 +41,7 @@ export default class Settings extends Component {
+                 <Link
+                   width="100%"
+                   margin="0.4em 0em 0.4em 0.4em"
+-                  href="https://qvain.fairdata.fi"
++                  href="https://qvain.csc.local"
+                   rel="noopener noreferrer"
+                   target="_blank"
+                 >Qvain
+-- 
+2.16.6
+

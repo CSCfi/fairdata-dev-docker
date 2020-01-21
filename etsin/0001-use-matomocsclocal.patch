@@ -1,0 +1,35 @@
+From 66ccd19d6b5d6727c2733a0424d5fda2d15f2dbc Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Tue, 21 Jan 2020 14:39:10 +0000
+Subject: [PATCH] use matomo.csc.local for development.
+
+---
+ etsin_finder/frontend/static/index.template.ejs | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/etsin_finder/frontend/static/index.template.ejs b/etsin_finder/frontend/static/index.template.ejs
+index 5a29c877..cb19550c 100644
+--- a/etsin_finder/frontend/static/index.template.ejs
++++ b/etsin_finder/frontend/static/index.template.ejs
+@@ -39,9 +39,9 @@
+         var _paq = _paq || []
+         _paq.push(['enableLinkTracking'])
+         ;(function() {
+-          let u = '//matomo-test.fairdata.fi/'
++          let u = '//matomo.csc.local/'
+           _paq.push(['setTrackerUrl', u + 'matomo.php'])
+-          _paq.push(['setSiteId', '8'])
++          _paq.push(['setSiteId', '1'])
+           let d = document,
+             g = d.createElement('script'),
+             s = d.getElementsByTagName('script')[0]
+@@ -99,4 +99,4 @@
+     <noscript>Javascript needs to be enabled to see this page</noscript>
+     <div id="root"><div class="loader"></div></div>
+   </body>
+-</html>
+\ No newline at end of file
++</html>
+-- 
+2.16.6
+
