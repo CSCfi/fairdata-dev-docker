@@ -94,8 +94,10 @@ ADD server.crt /etc/nginx/ssl_certs/nginx-selfsigned.crt
 ADD server.pem /etc/nginx/ssl_certs/nginx-selfsigned.key
 
 # Enable the provision on container boot
-RUN touch /code/first-time-init
+RUN touch /first-time-init
 
+RUN git config --global --unset user.email
+RUN git config --global --unset user.name
 
 EXPOSE 80
 EXPOSE 443

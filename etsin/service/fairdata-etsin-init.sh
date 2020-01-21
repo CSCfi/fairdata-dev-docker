@@ -23,7 +23,7 @@ if [[ ! -f /usr/local/etsin/search_scripts/reindex_by_recreating_index.sh ]]; th
 fi
 
 su - etsin-user -c "/usr/local/etsin/search_scripts/reindex_by_recreating_index.sh"
-rm -f /code/first-time-init
+rm -f /first-time-init
 
 systemctl enable memcached
 systemctl enable nginx

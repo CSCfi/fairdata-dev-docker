@@ -64,7 +64,7 @@ RUN chown -R apache:apache /mnt/storage_vol01
 RUN chown -R apache:apache /mnt/storage_vol02
 RUN chown -R apache:apache /mnt/rabbitmq_monitoring
 
-RUN touch /code/first-time-init
+RUN touch /first-time-init
 
 RUN git clone https://github.com/CSCfi/ida2.git -b ${ida2_branch} ida
 

@@ -17,7 +17,7 @@ set -a; source /etc/environment; set +a
 # Do the first time start up related initializations and system
 # preparing which will take care that the database itself
 # has the required databases and schemas.
-if [[ -f /code/first-time-init ]]; then
+if [[ -f /first-time-init ]]; then
 
     echo "Waiting until postgresql server is ready.."
     while true; do
@@ -37,7 +37,7 @@ if [[ -f /code/first-time-init ]]; then
 
     echo "Removing temporary file.."
     # ensure that we wont run these after the first time
-    rm -f /code/first-time-init
+    rm -f /first-time-init
     echo "..ok"
 fi
 

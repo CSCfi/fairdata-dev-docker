@@ -1,0 +1,24 @@
+From b0b343856fe7fc4c5b224b5232ee9d717879adf2 Mon Sep 17 00:00:00 2001
+From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
+Date: Tue, 21 Jan 2020 15:50:08 +0000
+Subject: [PATCH] Fixed timeout for elasticsearch for local development.
+
+---
+ .../files/metax-refdata-indexer/service/elasticsearch_service.py        | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ansible/roles/refdata_indexer/files/metax-refdata-indexer/service/elasticsearch_service.py b/ansible/roles/refdata_indexer/files/metax-refdata-indexer/service/elasticsearch_service.py
+index cf1a67d..128391a 100644
+--- a/ansible/roles/refdata_indexer/files/metax-refdata-indexer/service/elasticsearch_service.py
++++ b/ansible/roles/refdata_indexer/files/metax-refdata-indexer/service/elasticsearch_service.py
+@@ -52,7 +52,7 @@ class ElasticSearchService:
+             bulk_update_str = "\n".join(map(lambda idx_data: self._create_bulk_update_row_for_indexable_data(index, doc_type, idx_data), indexable_data_list))
+             self._delete_all_documents_from_index_with_type(index, doc_type)
+             _logger.info("Trying to bulk update reference data with type " + doc_type + " to index " + index)
+-            return self._operation_ok(self.es.bulk(body=bulk_update_str, request_timeout=30))
++            return self._operation_ok(self.es.bulk(body=bulk_update_str, request_timeout=10000))
+         return None
+ 
+     def _delete_all_documents_from_index(self, index):
+-- 
+2.16.6

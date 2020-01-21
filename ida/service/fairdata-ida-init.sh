@@ -11,7 +11,7 @@
 set -e
 set -a && source /etc/environment && set +a
 
-if [[ -f /code/first-time-init ]]; then
+if [[ -f /first-time-init ]]; then
 
     echo "Fix PHP memory limit.."
     sed -i "s/128M/512M/g" /etc/opt/rh/rh-php71/php.ini
@@ -113,7 +113,7 @@ if [[ -f /code/first-time-init ]]; then
     sudo -u apache /var/ida/tests/utils/initialize_test_accounts
     echo "..created."
 
-    rm -f /code/first-time-init
+    rm -f /first-time-init
 fi
 
 systemctl start rabbitmq-metadata-agent

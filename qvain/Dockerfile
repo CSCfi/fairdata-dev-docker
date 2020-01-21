@@ -31,8 +31,8 @@ RUN chown qvain:qvain /code
 
 # Others
 ADD env /etc/environment
-RUN touch /code/first-time-init
-RUN chown qvain:qvain /code/first-time-init
+RUN touch /first-time-init
+RUN chown qvain:qvain /first-time-init
 
 EXPOSE 8080
 
@@ -109,6 +109,8 @@ ADD nginx/nginx.conf /etc/nginx/
 # Add service file to start
 RUN systemctl enable nginx
 
+RUN git config --global --unset user.email
+RUN git config --global --unset user.name
 
 EXPOSE 80
 EXPOSE 443
