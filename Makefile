@@ -103,26 +103,26 @@ resolve-download:
 resolve-ida:
 	@make RESOLVE_IP=127.0.0.1 RESOLVE_HOST=ida.csc.local resolve_to
 
-qvain-shell: venv
+qvain-shell: docker venv
 	@$(DOCKER_COMPOSE) exec qvain.csc.local /bin/bash
 
 qvain-tests:
 	@test -d qvain-js || git clone https://github.com/CSCfi/qvain-js -b next
 	@cd qvain-js && git pull && make check
 
-simplesaml-dev: new_password resolve test-docker venv config
+simplesaml-dev: docker new_password resolve test-docker venv config
 	@$(DOCKER_COMPOSE) up --build -d simplesaml.csc.local
 
-simplesaml-shell: venv
+simplesaml-shell: docker venv
 	@$(DOCKER_COMPOSE) exec simplesaml.csc.local /bin/bash
 
-etsin-shell: venv
+etsin-shell: docker venv
 	@$(DOCKER_COMPOSE) exec etsin.csc.local /bin/bash
 
-etsin-logs: venv
+etsin-logs: docker venv
 	@$(DOCKER_COMPOSE) exec etsin.csc.local /usr/bin/journalctl -fu fairdata-etsin-init -n 1000
 
-download-shell: venv
+download-shell: docker venv
 	@$(DOCKER_COMPOSE) exec download.csc.local /bin/bash
 
 test-docker:
@@ -130,10 +130,10 @@ test-docker:
 	@docker info > /dev/null
 	@echo "..ok"
 
-metax-shell: venv
+metax-shell: docker venv
 	@$(DOCKER_COMPOSE) exec metax.csc.local /bin/bash
 
-ida-shell: venv
+ida-shell: docker venv
 	@$(DOCKER_COMPOSE) exec ida.csc.local /bin/bash
 
 metax-wait:
@@ -168,13 +168,13 @@ auth-wait:
 fairdata-wait: simplesaml-wait auth-wait metax-wait etsin-wait qvain-wait ida-wait matomo-wait
 	@./.wait-until-up "fairdata developer web interface" fairdata.csc.local 80
 
-down: venv hydra-login-consent-node download
+down: docker venv hydra-login-consent-node download
 	-@$(DOCKER_COMPOSE) down -v --remove-orphans 2> /dev/null
 
-logs: venv
+logs: docker venv
 	@$(DOCKER_COMPOSE) logs -f
 
-clean: venv
+clean: docker venv
 ifneq ('$(IS_DEVELOPER_CONTAINER_RUNNING)','')
 	@$(VENV) docker rm $(docker ps -a -f name=fairdata-dev-docker_devcontainer -qa) 2>&1 /dev/null
 endif
@@ -292,7 +292,7 @@ rebuild: down prune dev
 clean-code:
 	-@./.docker-clean-up-code 2> /dev/null
 
-fairdata-dev: venv resolve config
+fairdata-dev: docker venv resolve config
 	@echo "=== Building containers ========================"
 	@$(DOCKER_COMPOSE) up --build -d fairdata.csc.local
 	@echo "=== Containers have been built! ================"
@@ -370,14 +370,14 @@ ifeq ($(OS),Darwin)
 	@$(VENV) open /Applications/Visual\ Studio\ Code.app
 endif
 
-export_matomo_db:
+export_matomo_db: docker
 	$(DOCKER_COMPOSE) exec matomo-db.csc.local /usr/bin/mysqldump -u matomo -pchangeme --skip-extended-insert matomo_database > matomo/matomo.sql
 
-import_matomo_db:
+import_matomo_db: docker
 	$(DOCKER_COMPOSE) exec matomo-db.csc.local /init-matomo-db.sh
 
-stats:
+stats: docker
 	docker container stats
 
-top:
+top: docker
 	$(DOCKER_COMPOSE) top
