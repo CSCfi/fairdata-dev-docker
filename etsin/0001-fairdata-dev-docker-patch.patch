@@ -1,88 +1,36 @@
-From 0e3f515653350dce950616e29fd28fa155d02aec Mon Sep 17 00:00:00 2001
+From e6d70dc8fe9be0667361c9ad38fa76d6246e6697 Mon Sep 17 00:00:00 2001
 From: Juhapekka Piiroinen <juhapekka.piiroinen@csc.fi>
-Date: Mon, 20 Jan 2020 13:12:43 +0200
-Subject: [PATCH] fairdata-dev-docker patch
+Date: Mon, 10 Feb 2020 13:25:45 +0000
+Subject: [PATCH] Fixed for local development.
 
-Do not check source code in provisioning
-
-Fixed shell commands and env.
-
-Fixed dataserver address.
-
-Do not install git.
-
-Disable pip update
 ---
- ansible/group_vars/secrets                    | 48 +++++++++++++++++++
- ansible/install_requirements.sh               |  2 +-
- .../local_development/group_vars/all          |  6 +--
- ansible/provision_dataservers.yml             |  4 +-
- ansible/provision_webservers.yml              |  2 +
- ansible/roles/frontend/tasks/main.yml         |  3 ++
- ansible/roles/gunicorn/tasks/main.yml         |  6 +--
- ansible/roles/memcached/tasks/main.yml        |  2 +-
- ansible/roles/nginx/tasks/main.yml            |  2 +-
- ansible/roles/os-base/tasks/main.yml          | 34 ++++++-------
- .../roles/provision_search_app/tasks/main.yml | 32 ++++++-------
- .../roles/provision_web_app/tasks/main.yml    | 34 ++++++-------
- ansible/roles/python/tasks/main.yml           |  7 +++
- 13 files changed, 119 insertions(+), 63 deletions(-)
- create mode 100644 ansible/group_vars/secrets
+ .gitignore                                         |  4 ++++
+ ansible/install_requirements.sh                    |  2 +-
+ .../inventories/local_development/group_vars/all   |  6 +++---
+ ansible/provision_dataservers.yml                  |  4 +++-
+ ansible/provision_webservers.yml                   |  2 ++
+ ansible/roles/frontend/tasks/main.yml              |  3 ---
+ ansible/roles/gunicorn/tasks/main.yml              |  6 +-----
+ ansible/roles/memcached/tasks/main.yml             |  2 +-
+ ansible/roles/nginx/tasks/main.yml                 |  2 +-
+ ansible/roles/os-base/tasks/main.yml               | 16 +++++++--------
+ ansible/roles/provision_search_app/tasks/main.yml  | 18 ++++++++--------
+ ansible/roles/provision_web_app/tasks/main.yml     | 24 +++++++++++-----------
+ ansible/roles/python/tasks/main.yml                |  7 +++++++
+ 13 files changed, 52 insertions(+), 44 deletions(-)
 
-diff --git a/ansible/group_vars/secrets b/ansible/group_vars/secrets
-new file mode 100644
-index 0000000..a320b8b
---- /dev/null
-+++ b/ansible/group_vars/secrets
-@@ -0,0 +1,48 @@
-+metax_rabbitmq_hosts:
-+  - rabbitmq.csc.local
+diff --git a/.gitignore b/.gitignore
+index d922934..00222d9 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -39,3 +39,7 @@ __pycache__
+ .vscode
+ 
+ faircentos
++*.orig
++*.rej
 +
-+metax_rabbitmq:
-+  hosts: "{{ metax_rabbitmq_hosts }}"
-+  vhost: metax
-+  exchange: datasets
-+  user: metax-user
-+  password: changeme
-+  port: 5672
-+
-+metax_api:
-+  host: metax.csc.local
-+  user: qvain
-+  password: test-qvain
-+  verify_ssl: False
-+
-+metax_qvain_api:
-+  host: metax.csc.local
-+  user: qvain
-+  password: test-qvain
-+  verify_ssl: False
-+
-+download_api:
-+  host: download.csc.local
-+  port: 4433
-+  user: etsin
-+  password: changeme
-+
-+memcached:
-+  host: localhost
-+  port: 11211
-+
-+fd_rems:
-+  host: rems.csc.local
-+  api_key: test
-+
-+saml:
-+  debug: true
-+  strict: true
-+  sp_entity_id: https://etsin.csc.local/saml_metadata/
-+  sp_acs_url: https://etsin.csc.local/acs/
-+  sp_sls_url: https://etsin.csc.local/sls/
-+  sp_x509_cert: changeme
-+  sp_private_key: changeme
-+  idp_entity_id: https://auth.csc.local/idp/shibboleth
-+  idp_sso_url: https://auth.csc.local/idp/profile/SAML2/Redirect/SSO
-+  idp_x509_cert: changeme
++*secrets*
 diff --git a/ansible/install_requirements.sh b/ansible/install_requirements.sh
 index c6062fe..be650d9 100644
 --- a/ansible/install_requirements.sh
@@ -91,7 +39,7 @@ index c6062fe..be650d9 100644
 -ansible-galaxy -r requirements.yml install --roles-path=roles
 +# ansible-galaxy -r requirements.yml install --roles-path=roles
 diff --git a/ansible/inventories/local_development/group_vars/all b/ansible/inventories/local_development/group_vars/all
-index 9750e1e..fcc42e7 100644
+index b9c505c..12d6a24 100644
 --- a/ansible/inventories/local_development/group_vars/all
 +++ b/ansible/inventories/local_development/group_vars/all
 @@ -2,7 +2,7 @@ web_app_base_path: "/etsin/{{ web_app_project_name }}"
@@ -148,29 +96,29 @@ index 6ec46f8..8e6f68e 100644
      - { role: os-base, when: "deployment_environment_id != 'local_development'" }
      - { role: python, when: "deployment_environment_id != 'local_development'" }
 diff --git a/ansible/roles/frontend/tasks/main.yml b/ansible/roles/frontend/tasks/main.yml
-index 05a5395..585d36a 100644
+index 8ccd332..39ef06a 100644
 --- a/ansible/roles/frontend/tasks/main.yml
 +++ b/ansible/roles/frontend/tasks/main.yml
-@@ -4,6 +4,7 @@
+@@ -4,7 +4,6 @@
      shell: npm prune
      become_user: "{{ app_user }}"
      args:
-+      executable: /bin/bash
+-      executable: /bin/bash
        chdir: "{{ web_app_frontend_path }}"
  
    - block:
-@@ -18,12 +19,14 @@
+@@ -19,14 +18,12 @@
          shell: npm install
          become_user: "{{ app_user }}"
          args:
-+          executable: /bin/bash
+-          executable: /bin/bash
            chdir: "{{ web_app_frontend_path }}"
  
        - name: Run frontend dev build for local development environment
          shell: npm run dev-build
          become_user: "{{ app_user }}"
          args:
-+          executable: /bin/bash
+-          executable: /bin/bash
            chdir: "{{ web_app_frontend_path }}"
  
      when: deployment_environment_id == 'local_development'
@@ -211,47 +159,21 @@ index 2c3fbab..0d7c924 100644
 -  service: name=nginx enabled=yes state=restarted
 +  shell: systemctl enable nginx
 diff --git a/ansible/roles/os-base/tasks/main.yml b/ansible/roles/os-base/tasks/main.yml
-index 6639b3e..5b12119 100644
+index 56f32a7..e1e237e 100644
 --- a/ansible/roles/os-base/tasks/main.yml
 +++ b/ansible/roles/os-base/tasks/main.yml
-@@ -18,7 +18,7 @@
-       - gcc
-       - gcc-c++
-       - python-devel
--      - git
-+#      - git
-       - curl
-       - vim
-       - zip
-@@ -38,16 +38,16 @@
-   yum: name=python-pip state=latest
-   when: deployment_environment_id != 'local_development'
- 
--- name: Install latest python pip and setuptools using pip
--  pip:
--    state: latest
--    name:
--      - pip
--      - setuptools
-+#- name: Install latest python pip and setuptools using pip
-+#  pip:
-+#    state: latest
-+#    name:
-+#      - pip
-+#      - setuptools
- 
--- name: Install pur for updating pip dependencies using pip
--  pip: name=pur state=latest
--  when: deployment_environment_id == 'local_development'
-+#- name: Install pur for updating pip dependencies using pip
-+#  pip: name=pur state=latest
-+#  when: deployment_environment_id == 'local_development'
- 
- - name: Reinstall glibc-common just in case to make Finnish locale available
-   shell: yum -y reinstall glibc-common
-@@ -55,11 +55,11 @@
-     warn: False
-   when: deployment_environment_id == 'local_development'
+@@ -19,7 +19,7 @@
+           - gcc
+           - gcc-c++
+           - python-devel
+-          - git
++#          - git
+           - curl
+           - vim
+           - zip
+@@ -58,11 +58,11 @@
+     state: started
+     enabled: yes
  
 -- name: Disable SELinux
 -  selinux: state=permissive policy=targeted
@@ -265,7 +187,7 @@ index 6639b3e..5b12119 100644
  
  - name: Set default locale as LC_ALL to fi_FI.UTF-8
    lineinfile:
-@@ -73,9 +73,9 @@
+@@ -76,9 +76,9 @@
      state: present
      line: "LC_CTYPE=\"fi_FI.UTF-8\""
  
@@ -279,7 +201,7 @@ index 6639b3e..5b12119 100644
  - include_role: name=users
  
 diff --git a/ansible/roles/provision_search_app/tasks/main.yml b/ansible/roles/provision_search_app/tasks/main.yml
-index f0927e0..6670f9a 100644
+index a321e71..246b08c 100644
 --- a/ansible/roles/provision_search_app/tasks/main.yml
 +++ b/ansible/roles/provision_search_app/tasks/main.yml
 @@ -8,15 +8,15 @@
@@ -290,15 +212,16 @@ index f0927e0..6670f9a 100644
 -    git: repo={{ search_app_github_repo }} dest={{ search_app_base_path }} version={{ search_app_github_repo_branch }}
 -    become_user: "{{ app_user }}"
 -    ignore_errors: yes
-+#  - name: Clone project repo from branch {{ search_app_github_repo_branch }} to {{ search_app_base_path }}
-+#    git: repo={{ search_app_github_repo }} dest={{ search_app_base_path }} version={{ search_app_github_repo_branch }}
-+#    become_user: "{{ app_user }}"
-+#    ignore_errors: yes
- 
+-
 -  - name: Update search app python package requirements to their latest versions
 -    shell: pur --force --requirement {{ search_app_base_path }}/requirements.txt
 -    become_user: "{{ app_user }}"
 -    when: deployment_environment_id == 'local_development'
++#  - name: Clone project repo from branch {{ search_app_github_repo_branch }} to {{ search_app_base_path }}
++#    git: repo={{ search_app_github_repo }} dest={{ search_app_base_path }} version={{ search_app_github_repo_branch }}
++#    become_user: "{{ app_user }}"
++#    ignore_errors: yes
++
 +#  - name: Update search app python package requirements to their latest versions
 +#    shell: pur --force --requirement {{ search_app_base_path }}/requirements.txt
 +#    become_user: "{{ app_user }}"
@@ -306,31 +229,8 @@ index f0927e0..6670f9a 100644
  
    - name: Install search app python package requirements
      pip: requirements={{ search_app_base_path }}/requirements.txt virtualenv={{ python_virtualenv_path }}
-@@ -78,15 +78,13 @@
-       line: "%etsin ALL=NOPASSWD: /sbin/service rabbitmq-consumer status, /sbin/service rabbitmq-consumer start, /sbin/service rabbitmq-consumer restart, /sbin/service rabbitmq-consumer stop, /bin/systemctl status rabbitmq-consumer.service, /bin/systemctl start rabbitmq-consumer.service, /bin/systemctl restart rabbitmq-consumer.service, /bin/systemctl stop rabbitmq-consumer.service"
- 
-   - name: Reload systemd and enable RabbitMQ consumer service
--    systemd:
--      daemon_reload: yes
--      name: rabbitmq-consumer
--      enabled: yes
--
--  - name: Start RabbitMQ consumer service
--    systemd:
--      state: started
--      name: rabbitmq-consumer
-+    shell: systemctl enable rabbitmq-consumer
-+
-+#  - name: Start RabbitMQ consumer service
-+#    systemd:
-+#      state: started
-+#      name: rabbitmq-consumer
-+
- 
-   - debug:
-       msg: "{{ deployment_environment_id }} search app environment successfully set up."
 diff --git a/ansible/roles/provision_web_app/tasks/main.yml b/ansible/roles/provision_web_app/tasks/main.yml
-index a363cae..75dec79 100644
+index bdcef4d..1b8381b 100644
 --- a/ansible/roles/provision_web_app/tasks/main.yml
 +++ b/ansible/roles/provision_web_app/tasks/main.yml
 @@ -10,24 +10,24 @@
@@ -370,29 +270,11 @@ index a363cae..75dec79 100644
  
    - name: Install web app python test package requirements
      pip: requirements={{ web_app_base_path }}/test_requirements.txt virtualenv={{ python_virtualenv_path }}
-@@ -36,12 +36,12 @@
- 
-   - include_role: name=gunicorn
- 
--  - name: Install NPM
--    yum: name=npm state=latest
-+#  - name: Install NPM
-+#    yum: name=npm state=latest
- 
--  - name: Install npm-check-updates
--    npm: name=npm-check-updates state=latest global=yes
--    when: deployment_environment_id == 'local_development'
-+#  - name: Install npm-check-updates
-+#    npm: name=npm-check-updates state=latest global=yes
-+#    when: deployment_environment_id == 'local_development'
- 
-   - include_role: name=frontend
- 
 diff --git a/ansible/roles/python/tasks/main.yml b/ansible/roles/python/tasks/main.yml
-index cefcec7..87ad941 100644
+index ae761ff..abb3c1f 100644
 --- a/ansible/roles/python/tasks/main.yml
 +++ b/ansible/roles/python/tasks/main.yml
-@@ -44,3 +44,10 @@
+@@ -41,3 +41,10 @@
  - name: install wheel python package to enable using pip for installing requirements as {{ app_user }}
    pip: name=wheel virtualenv={{ python_virtualenv_path }}
    become_user: "{{ app_user }}"
@@ -404,5 +286,5 @@ index cefcec7..87ad941 100644
 +    state: latest
 +  become_user: "{{ app_user }}"
 -- 
-2.21.0 (Apple Git-122.2)
+1.8.3.1
 
