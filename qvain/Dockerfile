@@ -78,7 +78,7 @@ RUN git config --global user.email "you@example.com"
 RUN git config --global user.name "Your Name"
 
 ADD 0001-update-uris.patch /code/
-RUN cd qvain-js && git am /code/0001-update-uris.patch
+#RUN cd qvain-js && git am /code/0001-update-uris.patch
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm install
 RUN source ~/.nvm/nvm.sh && cd qvain-js && npm run dev-build
 USER root
