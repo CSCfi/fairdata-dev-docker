@@ -25,7 +25,7 @@ if [[ ! -f ~/.ssh/id_rsa ]]; then
     ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ''
 fi
 cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
-screen -d -m ssh -o 'StrictHostKeyChecking=no' -L9200:elasticsearch.csc.local:9200 127.0.0.1 -N
+screen -d -m ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -L9200:elasticsearch.csc.local:9200 127.0.0.1 -N
 echo "..ssh ok."
 echo
 echo "Waiting for elasticsearch is available.."
