@@ -47,7 +47,7 @@ ADD 0001-update-qvain-address.patch /code/0001-update-qvain-address.patch
 
 RUN pushd /code/etsin-ops/ && git am ../0001-fairdata-dev-docker-patch.patch
 
-RUN pushd /code/etsin_finder && git am ../0001-patch-finder-search.patch
+#RUN pushd /code/etsin_finder && git am ../0001-patch-finder-search.patch
 RUN pushd /code/etsin_finder && git am ../0001-use-matomocsclocal.patch
 RUN pushd /code/etsin_finder && git am ../0001-update-qvain-address.patch
 
