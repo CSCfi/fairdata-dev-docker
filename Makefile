@@ -140,7 +140,7 @@ metax-wait:
 	@./.wait-until-up "metax web interface" metax.csc.local 443 https://metax.csc.local/rest/datasets
 
 qvain-wait:
-	@./.wait-until-up "qvain web interface" qvain.csc.local 443 https://qvain.csc.local/api/auth/login
+	@./.wait-until-up "qvain web interface" qvain.csc.local 443 https://qvain.csc.local/api/version
 
 etsin-wait:
 	@./.wait-until-up "etsin web interface" etsin.csc.local 443 https://etsin.csc.local
