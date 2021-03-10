@@ -1,3 +1,5 @@
+# Archived, replaced by https://github.com/CSCfi/fairdata-docker
+
 # Fairdata Development Docker containers.
 
 This repository contains containers which will help with development tasks. This has setup for local development environments for Etsin, Qvain, Qvain Light, Download and Metax. It will also host a simple developer homepage for local development in ports 80 and 443.
